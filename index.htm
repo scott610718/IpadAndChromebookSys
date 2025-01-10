@@ -185,6 +185,7 @@ function importSchedule(file) {
     try {
       const importedData = JSON.parse(e.target.result);
       Object.assign(scheduleData, importedData);
+      saveScheduleData();
       updateSchedule();
       alert('資料匯入成功！');
     } catch (error) {
@@ -242,22 +243,26 @@ function updateSchedule() {
               scheduleData[room][week][period - 1][day].teacher = '';
             }
             cell.classList.add('permanent-blocked');
+            saveScheduleData();
           } else if (value === 'blocked') {
             cellData.status = 'blocked';
             cellData.teacher = '';
             cellData.permanentBlocked = false;
             cell.classList.add('not-available');
             cell.classList.remove('permanent-blocked');
+            saveScheduleData();
           } else if (value === 'available') {
             cellData.status = 'available';
             cellData.teacher = '';
             cellData.permanentBlocked = false;
             cell.classList.remove('not-available', 'permanent-blocked');
+            saveScheduleData();
           } else {
             cellData.status = 'reserved';
             cellData.teacher = value;
             cellData.permanentBlocked = false;
             cell.classList.remove('not-available', 'permanent-blocked');
+            saveScheduleData();
           }
         });
         cell.appendChild(select);
@@ -277,6 +282,15 @@ function updateSchedule() {
       row.appendChild(cell);
     }
     scheduleBody.appendChild(row);
+  }
+}
+function saveScheduleData() {
+  localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+}
+function loadScheduleData() {
+  const saved = localStorage.getItem('scheduleData');
+  if (saved) {
+    Object.assign(scheduleData, JSON.parse(saved));
   }
 }
 document.getElementById('loginBtn').addEventListener('click', () => {
@@ -326,6 +340,7 @@ document.getElementById('nextWeek').addEventListener('click', () => {
 document.getElementById('roomSelect').addEventListener('change', () => {
   updateSchedule();
 });
+loadScheduleData();
 initWeekSelect();
 updateSchedule();</script>
 </body></html>
