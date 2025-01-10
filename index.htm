@@ -1,7 +1,7 @@
-<html><head><base href="." />
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>營北國中載具借用系統</title>
+<html><head><base href=".">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>&#x71df;&#x5317;&#x570b;&#x4e2d;&#x8f09;&#x5177;&#x501f;&#x7528;&#x7cfb;&#x7d71;</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     :root {
@@ -69,25 +69,25 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">營北國中載具借用系統</a>
+      <a class="navbar-brand" href="#">&#x71df;&#x5317;&#x570b;&#x4e2d;&#x8f09;&#x5177;&#x501f;&#x7528;&#x7cfb;&#x7d71;</a>
       <div>
-        <button id="loginBtn" class="btn btn-light">管理者登入</button>
+        <button id="loginBtn" class="btn btn-light">&#x7ba1;&#x7406;&#x8005;&#x767b;&#x5165;</button>
       </div>
     </div>
   </nav>
 
   <div class="container">
     <div class="admin-controls" style="display: none;">
-      <button id="exportBtn" class="btn btn-secondary">輸出檔案</button>
-      <button id="importBtn" class="btn btn-secondary">匯入檔案</button>
+      <button id="exportBtn" class="btn btn-secondary">&#x8f38;&#x51fa;&#x6a94;&#x6848;</button>
+      <button id="importBtn" class="btn btn-secondary">&#x532f;&#x5165;&#x6a94;&#x6848;</button>
       <input type="file" id="fileInput" accept=".json">
     </div>
 
     <div class="row mb-3">
       <div class="col">
         <select id="roomSelect" class="form-select">
-          <option value="ipad">iPad教室</option>
-          <option value="chromebook">Chromebook教室</option>
+          <option value="ipad">iPad&#x6559;&#x5ba4;</option>
+          <option value="chromebook">Chromebook&#x6559;&#x5ba4;</option>
         </select>
       </div>
       <div class="col">
@@ -95,8 +95,8 @@
         </select>
       </div>
       <div class="col">
-        <button id="prevWeek" class="btn btn-primary">上一週</button>
-        <button id="nextWeek" class="btn btn-primary">下一週</button>
+        <button id="prevWeek" class="btn btn-primary">&#x4e0a;&#x4e00;&#x9031;</button>
+        <button id="nextWeek" class="btn btn-primary">&#x4e0b;&#x4e00;&#x9031;</button>
       </div>
     </div>
 
@@ -104,13 +104,13 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>節次</th>
-            <th>週一</th>
-            <th>週二</th>
-            <th>週三</th>
-            <th>週四</th>
-            <th>週五</th>
-            <th>週六</th>
+            <th>&#x7bc0;&#x6b21;</th>
+            <th>&#x9031;&#x4e00;</th>
+            <th>&#x9031;&#x4e8c;</th>
+            <th>&#x9031;&#x4e09;</th>
+            <th>&#x9031;&#x56db;</th>
+            <th>&#x9031;&#x4e94;</th>
+            <th>&#x9031;&#x516d;</th>
           </tr>
         </thead>
         <tbody id="scheduleBody">
@@ -124,20 +124,20 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">管理者登入</h5>
+          <h5 class="modal-title">&#x7ba1;&#x7406;&#x8005;&#x767b;&#x5165;</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="loginForm">
             <div class="mb-3">
-              <label class="form-label">帳號</label>
+              <label class="form-label">&#x5e33;&#x865f;</label>
               <input type="text" class="form-control" id="username" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">密碼</label>
+              <label class="form-label">&#x5bc6;&#x78bc;</label>
               <input type="password" class="form-control" id="password" required>
             </div>
-            <button type="submit" class="btn btn-primary">登入</button>
+            <button type="submit" class="btn btn-primary">&#x767b;&#x5165;</button>
           </form>
         </div>
       </div>
@@ -145,238 +145,206 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    const ADMIN_USERNAME = "114";
-    const ADMIN_PASSWORD = "114";
-    let isAdmin = false;
-    
-    function getCurrentWeek() {
-      const today = new Date(2024, 0, 11); 
-      const startYear = new Date(2024, 0, 1);
-      const diffTime = Math.abs(today - startYear);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return Math.ceil(diffDays / 7);
+  <script>const ADMIN_USERNAME = "114";
+const ADMIN_PASSWORD = "114";
+let isAdmin = false;
+function getCurrentWeek() {
+  const today = new Date(2024, 0, 11);
+  const startYear = new Date(2024, 0, 1);
+  const diffTime = Math.abs(today - startYear);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return Math.ceil(diffDays / 7);
+}
+let currentWeek = getCurrentWeek();
+const teachers = ['李靜汝', '田慧晶', '江佳容', '林怡彣', '李立德', '李雯琪', '張心怡', '洪錦男', '許志豪', '林明輝', '林淑楨', '林秀貞', '黃綉媛', '王耀賢', '莊雅如', '陳怡妏', '林明輝', '陳育德', '蕭慧純', '李蕎至', '蔡呈熙', '林明輝', '李宜芳', '鄧伊芳', '曾柏蓉', '魏俊益', '崔愉雯', '徐錫穎', '張茱貽', '張智鈞', '洪振民', '林佳蓉', '張瀞云', '陳立崗', '徐嘉禧', '楊海萍', '鍾菁菁', '吳政翰', '許淑智', '曾怡儒', '蘇琮筆', '教務處', '學務處', '輔導室'];
+const weekDates = ["0101~0107", "0108~0114", "0115~0121", "0122~0128", "0129~0204", "0205~0211", "0212~0218", "0219~0225", "0226~0303", "0304~0310", "0311~0317", "0318~0324", "0325~0331", "0401~0407", "0408~0414", "0415~0421", "0422~0428", "0429~0505", "0506~0512", "0513~0519", "0520~0526", "0527~0602", "0603~0609", "0610~0616", "0617~0623", "0624~0630", "0701~0707", "0708~0714", "0715~0721", "0722~0728", "0729~0804", "0805~0811", "0812~0818", "0819~0825", "0826~0901", "0902~0908", "0909~0915", "0916~0922", "0923~0929", "0930~1006", "1007~1013", "1014~1020", "1021~1027", "1028~1103", "1104~1110", "1111~1117", "1118~1124", "1125~1201", "1202~1208", "1209~1215", "1216~1222", "1223~1229", "1230~1231"];
+let scheduleData;
+async function loadScheduleFromUrl() {
+  const fileId = '1NHDQBhUf45q2C9GCLzBgdl0XChdozQMN';
+  const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    Object.assign(scheduleData, data);
+    updateSchedule();
+  } catch (error) {
+    console.error('Error loading schedule:', error);
+  }
+}
+async function saveScheduleToUrl() {
+  const fileId = '1NHDQBhUf45q2C9GCLzBgdl0XChdozQMN';
+  const url = `https://drive.google.com/uc?export=update&id=${fileId}`;
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(scheduleData)
+    });
+  } catch (error) {
+    console.error('Error saving schedule:', error);
+  }
+}
+function exportSchedule() {
+  const dataStr = JSON.stringify(scheduleData);
+  const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+  const exportFileDefaultName = 'schedule_data.json';
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.click();
+}
+function importSchedule(file) {
+  const reader = new FileReader();
+  reader.onload = async function (e) {
+    try {
+      const importedData = JSON.parse(e.target.result);
+      Object.assign(scheduleData, importedData);
+      await saveScheduleToUrl();
+      updateSchedule();
+      alert('資料匯入成功！');
+    } catch (error) {
+      alert('檔案格式錯誤！');
     }
-    
-    let currentWeek = getCurrentWeek();
-    
-    const teachers = ['王曉明', '李小華', '張大同'];
-    
-    const weekDates = [
-      "0101~0107", "0108~0114", "0115~0121", "0122~0128", "0129~0204",
-      "0205~0211", "0212~0218", "0219~0225", "0226~0303", "0304~0310",
-      "0311~0317", "0318~0324", "0325~0331", "0401~0407", "0408~0414",
-      "0415~0421", "0422~0428", "0429~0505", "0506~0512", "0513~0519",
-      "0520~0526", "0527~0602", "0603~0609", "0610~0616", "0617~0623",
-      "0624~0630", "0701~0707", "0708~0714", "0715~0721", "0722~0728",
-      "0729~0804", "0805~0811", "0812~0818", "0819~0825", "0826~0901",
-      "0902~0908", "0909~0915", "0916~0922", "0923~0929", "0930~1006",
-      "1007~1013", "1014~1020", "1021~1027", "1028~1103", "1104~1110",
-      "1111~1117", "1118~1124", "1125~1201", "1202~1208", "1209~1215",
-      "1216~1222", "1223~1229", "1230~1231"
-    ];
-    
-    const scheduleData = {
-      ipad: Array(52).fill().map(() => 
-        Array(8).fill().map(() => 
-          Array(6).fill().map(() => ({
-            teacher: '',
-            status: 'available',
-            permanentBlocked: false
-          }))
-        )
-      ),
-      chromebook: Array(52).fill().map(() => 
-        Array(8).fill().map(() => 
-          Array(6).fill().map(() => ({
-            teacher: '',
-            status: 'available',
-            permanentBlocked: false
-          }))
-        )
-      )
-    };
-
-    function exportSchedule() {
-      const dataStr = JSON.stringify(scheduleData);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-      const exportFileDefaultName = 'schedule_data.json';
-
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
-      linkElement.click();
-    }
-
-    function importSchedule(file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const importedData = JSON.parse(e.target.result);
-          Object.assign(scheduleData, importedData);
-          updateSchedule();
-          alert('資料匯入成功！');
-        } catch(error) {
-          alert('檔案格式錯誤！');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function initWeekSelect() {
-      const weekSelect = document.getElementById('weekSelect');
-      weekSelect.innerHTML = '';
-      for(let i = 1; i <= 52; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = `第${i}週 (${weekDates[i-1]})`;
-        weekSelect.appendChild(option);
-      }
-      weekSelect.value = currentWeek;
-    }
-
-    function updateSchedule() {
-      const scheduleBody = document.getElementById('scheduleBody');
-      const room = document.getElementById('roomSelect').value;
-      scheduleBody.innerHTML = '';
-      
-      for(let period = 1; period <= 8; period++) {
-        const row = document.createElement('tr');
-        row.innerHTML = `<th>${period}</th>`;
-        
-        for(let day = 0; day < 6; day++) {
-          const cell = document.createElement('td');
-          cell.className = 'schedule-cell';
-          const cellData = scheduleData[room][currentWeek-1][period-1][day];
-          
-          if(isAdmin) {
-            const select = document.createElement('select');
-            select.className = 'form-select';
-            select.innerHTML = `
+  };
+  reader.readAsText(file);
+}
+function initWeekSelect() {
+  const weekSelect = document.getElementById('weekSelect');
+  weekSelect.innerHTML = '';
+  for (let i = 1; i <= 52; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = `第${i}週 (${weekDates[i - 1]})`;
+    weekSelect.appendChild(option);
+  }
+  weekSelect.value = currentWeek;
+}
+function updateSchedule() {
+  const scheduleBody = document.getElementById('scheduleBody');
+  const room = document.getElementById('roomSelect').value;
+  scheduleBody.innerHTML = '';
+  for (let period = 1; period <= 8; period++) {
+    const row = document.createElement('tr');
+    row.innerHTML = `<th>${period}</th>`;
+    for (let day = 0; day < 6; day++) {
+      const cell = document.createElement('td');
+      cell.className = 'schedule-cell';
+      const cellData = scheduleData[room][currentWeek - 1][period - 1][day];
+      if (isAdmin) {
+        const select = document.createElement('select');
+        select.className = 'form-select';
+        select.innerHTML = `
               <option value="available">可借用</option>
               <option value="blocked">不可借用</option>
               <option value="permanent-blocked">永久不可借用</option>
               ${teachers.map(t => `<option value="${t}">${t}</option>`).join('')}
             `;
-            
-            if(cellData.permanentBlocked) {
-              select.value = 'permanent-blocked';
-              cell.classList.add('permanent-blocked');
-            } else if(cellData.status === 'blocked') {
-              select.value = 'blocked';
-              cell.classList.add('not-available');
-            } else if(cellData.teacher) {
-              select.value = cellData.teacher;
-            }
-
-            select.addEventListener('change', (e) => {
-              const value = e.target.value;
-              if(value === 'permanent-blocked') {
-                for(let week = 0; week < 52; week++) {
-                  scheduleData[room][week][period-1][day].permanentBlocked = true;
-                  scheduleData[room][week][period-1][day].status = 'blocked';
-                  scheduleData[room][week][period-1][day].teacher = '';
-                }
-                cell.classList.add('permanent-blocked');
-              } else if(value === 'blocked') {
-                cellData.status = 'blocked';
-                cellData.teacher = '';
-                cellData.permanentBlocked = false;
-                cell.classList.add('not-available');
-                cell.classList.remove('permanent-blocked');
-              } else if(value === 'available') {
-                cellData.status = 'available';
-                cellData.teacher = '';
-                cellData.permanentBlocked = false;
-                cell.classList.remove('not-available', 'permanent-blocked');
-              } else {
-                cellData.status = 'reserved';
-                cellData.teacher = value;
-                cellData.permanentBlocked = false;
-                cell.classList.remove('not-available', 'permanent-blocked');
-              }
-            });
-            
-            cell.appendChild(select);
-          } else {
-            if(cellData.permanentBlocked) {
-              cell.textContent = '永久不可借用';
-              cell.classList.add('permanent-blocked');
-            } else if(cellData.status === 'blocked') {
-              cell.textContent = '不可借用';
-              cell.classList.add('not-available');
-            } else if(cellData.teacher) {
-              cell.textContent = `借用人: ${cellData.teacher}`;
-            } else {
-              cell.textContent = '可借用';
-            }
-          }
-          
-          row.appendChild(cell);
+        if (cellData.permanentBlocked) {
+          select.value = 'permanent-blocked';
+          cell.classList.add('permanent-blocked');
+        } else if (cellData.status === 'blocked') {
+          select.value = 'blocked';
+          cell.classList.add('not-available');
+        } else if (cellData.teacher) {
+          select.value = cellData.teacher;
         }
-        
-        scheduleBody.appendChild(row);
-      }
-    }
-
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-      loginModal.show();
-    });
-
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-        isAdmin = true;
-        document.querySelector('.admin-controls').style.display = 'block';
-        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
-        updateSchedule();
+        select.addEventListener('change', async e => {
+          const value = e.target.value;
+          if (value === 'permanent-blocked') {
+            for (let week = 0; week < 52; week++) {
+              scheduleData[room][week][period - 1][day].permanentBlocked = true;
+              scheduleData[room][week][period - 1][day].status = 'blocked';
+              scheduleData[room][week][period - 1][day].teacher = '';
+            }
+            cell.classList.add('permanent-blocked');
+          } else if (value === 'blocked') {
+            cellData.status = 'blocked';
+            cellData.teacher = '';
+            cellData.permanentBlocked = false;
+            cell.classList.add('not-available');
+            cell.classList.remove('permanent-blocked');
+          } else if (value === 'available') {
+            cellData.status = 'available';
+            cellData.teacher = '';
+            cellData.permanentBlocked = false;
+            cell.classList.remove('not-available', 'permanent-blocked');
+          } else {
+            cellData.status = 'reserved';
+            cellData.teacher = value;
+            cellData.permanentBlocked = false;
+            cell.classList.remove('not-available', 'permanent-blocked');
+          }
+          await saveScheduleToUrl();
+        });
+        cell.appendChild(select);
       } else {
-        alert('帳號或密碼錯誤！');
+        if (cellData.permanentBlocked) {
+          cell.textContent = '永久不可借用';
+          cell.classList.add('permanent-blocked');
+        } else if (cellData.status === 'blocked') {
+          cell.textContent = '不可借用';
+          cell.classList.add('not-available');
+        } else if (cellData.teacher) {
+          cell.textContent = `借用人: ${cellData.teacher}`;
+        } else {
+          cell.textContent = '可借用';
+        }
       }
-    });
-
-    document.getElementById('exportBtn').addEventListener('click', exportSchedule);
-    
-    document.getElementById('importBtn').addEventListener('click', () => {
-      document.getElementById('fileInput').click();
-    });
-
-    document.getElementById('fileInput').addEventListener('change', (e) => {
-      if(e.target.files.length > 0) {
-        importSchedule(e.target.files[0]);
-      }
-    });
-
-    document.getElementById('weekSelect').addEventListener('change', (e) => {
-      currentWeek = parseInt(e.target.value);
-      updateSchedule();
-    });
-
-    document.getElementById('prevWeek').addEventListener('click', () => {
-      if(currentWeek > 1) {
-        currentWeek--;
-        document.getElementById('weekSelect').value = currentWeek;
-        updateSchedule();
-      }
-    });
-
-    document.getElementById('nextWeek').addEventListener('click', () => {
-      if(currentWeek < 52) {
-        currentWeek++;
-        document.getElementById('weekSelect').value = currentWeek;
-        updateSchedule();
-      }
-    });
-
-    document.getElementById('roomSelect').addEventListener('change', () => {
-      updateSchedule();
-    });
-
-    initWeekSelect();
+      row.appendChild(cell);
+    }
+    scheduleBody.appendChild(row);
+  }
+}
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+  loginModal.show();
+});
+document.getElementById('loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    isAdmin = true;
+    document.querySelector('.admin-controls').style.display = 'block';
+    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
     updateSchedule();
-  </script>
+  } else {
+    alert('帳號或密碼錯誤！');
+  }
+});
+document.getElementById('exportBtn').addEventListener('click', exportSchedule);
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+document.getElementById('fileInput').addEventListener('change', e => {
+  if (e.target.files.length > 0) {
+    importSchedule(e.target.files[0]);
+  }
+});
+document.getElementById('weekSelect').addEventListener('change', e => {
+  currentWeek = parseInt(e.target.value);
+  updateSchedule();
+});
+document.getElementById('prevWeek').addEventListener('click', () => {
+  if (currentWeek > 1) {
+    currentWeek--;
+    document.getElementById('weekSelect').value = currentWeek;
+    updateSchedule();
+  }
+});
+document.getElementById('nextWeek').addEventListener('click', () => {
+  if (currentWeek < 52) {
+    currentWeek++;
+    document.getElementById('weekSelect').value = currentWeek;
+    updateSchedule();
+  }
+});
+document.getElementById('roomSelect').addEventListener('change', () => {
+  updateSchedule();
+});
+initWeekSelect();
+updateSchedule();
+loadScheduleFromUrl();</script>
 </body></html>
