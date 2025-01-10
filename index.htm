@@ -1,252 +1,207 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-
-const DeviceBorrowingSystem = () => {
-  // ... (previous imports and initial state remain the same) ...
-
-  const [currentWeek, setCurrentWeek] = useState(1);
-  const [selectedRoom, setSelectedRoom] = useState('ipad');
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [loginDetails, setLoginDetails] = useState({ username: '', password: '' });
-
-  // 借用者名單
-  const borrowers = [
-    "黃美玲", "李靜汝", "田慧晶", "江佳容", "林怡彣", "李立德", "李雯琪", 
-    "張心怡", "洪錦男", "許志豪", "林明輝", "林淑楨", "林秀貞", "黃綉媛",
-    "王耀賢", "莊雅如", "陳怡妏", "陳育德", "蕭慧純", "李蕎至", "蔡呈熙",
-    "李宜芳", "鄧伊芳", "曾柏蓉", "魏俊益", "崔愉雯", "徐錫穎", "張茱貽",
-    "張智鈞", "洪振民", "蔡怡君", "林佳蓉", "張瀞云", "陳立崗", "徐嘉禧",
-    "楊海萍", "鍾菁菁", "吳政翰", "林明德", "許淑智", "唐瑄", "曾怡儒",
-    "張麗娟", "蘇琮筆", "Kristine Can"
-  ];
-
-  const [schedule, setSchedule] = useState({
-    ipad: {},
-    chromebook: {}
-  });
-
-  const [weeklyBlocked, setWeeklyBlocked] = useState({
-    ipad: {},
-    chromebook: {}
-  });
-
-  const getWeekDates = (weekNumber) => {
-    const startDate = new Date(2025, 0, 1);
-    const firstDay = startDate.getDay();
-    const daysToAdd = (weekNumber - 1) * 7 - firstDay + 1;
-    const weekStart = new Date(startDate);
-    weekStart.setDate(startDate.getDate() + daysToAdd);
-    
-    return Array.from({ length: 6 }).map((_, index) => {
-      const date = new Date(weekStart);
-      date.setDate(weekStart.getDate() + index);
-      return `${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
-    });
-  };
-
-  const handleLogin = () => {
-    if (loginDetails.username === '114' && loginDetails.password === '114') {
-      setIsAdmin(true);
-      setShowLogin(false);
-    }
-  };
-
-  const updateSchedule = (week, day, period, value) => {
-    if (!isAdmin) return;
-    
-    if (value === 'weekly-blocked') {
-      setWeeklyBlocked(prev => ({
-        ...prev,
-        [selectedRoom]: {
-          ...prev[selectedRoom],
-          [`${day}-${period}`]: true
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>營北國中載具教室借用系統</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            font-size: 125%;
+            background-color: #e3f2fd; /* 淺藍色背景 */
+            color: #1a237e; /* 深藍色文字 */
+            text-align: center;
+            padding: 20px;
         }
-      }));
-    } else {
-      if (weeklyBlocked[selectedRoom]?.[`${day}-${period}`]) {
-        setWeeklyBlocked(prev => ({
-          ...prev,
-          [selectedRoom]: {
-            ...prev[selectedRoom],
-            [`${day}-${period}`]: false
-          }
-        }));
-      }
-      
-      setSchedule(prev => ({
-        ...prev,
-        [selectedRoom]: {
-          ...prev[selectedRoom],
-          [week]: {
-            ...prev[selectedRoom]?.[week],
-            [`${day}-${period}`]: value
-          }
+        h1 {
+            color: #0d47a1; /* 深藍標題 */
+            font-size: 2.5em;
         }
-      }));
-    }
-  };
-
-  const getCellValue = (week, day, period) => {
-    if (weeklyBlocked[selectedRoom]?.[`${day}-${period}`]) {
-      return 'weekly-blocked';
-    }
-    return schedule[selectedRoom]?.[week]?.[`${day}-${period}`] || 'available';
-  };
-
-  const getDisplayValue = (value) => {
-    switch(value) {
-      case 'available':
-        return '可借用';
-      case 'blocked':
-        return '不可借用';
-      case 'weekly-blocked':
-        return '每週皆不可借用';
-      case null:
-      case undefined:
-        return '可借用';
-      default:
-        return value;
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-blue-50">
-      <div className="container mx-auto p-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-800">營北國中載具借用系統</h1>
-          <Button 
-            onClick={() => setShowLogin(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            管理者登入
-          </Button>
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #90caf9; /* 淺藍邊框 */
+        }
+        .classroom {
+            margin-top: 20px;
+        }
+        .classroom h2 {
+            color: #1565c0; /* 中藍標題 */
+            font-size: 2em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #90caf9;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #42a5f5; /* 藍色標題背景 */
+            color: white;
+        }
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #90caf9;
+        }
+        button {
+            background-color: #1e88e5; /* 藍色按鈕 */
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1565c0; /* 深藍按鈕 (hover) */
+        }
+        .navigation {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>營北國中載具教室借用系統</h1>
+        <div class="navigation">
+            <button onclick="changeWeek(-1)">上一週</button>
+            <span id="current-week">114年第1週</span>
+            <button onclick="changeWeek(1)">下一週</button>
         </div>
-
-        <div className="grid gap-4 mb-6">
-          <Select value={selectedRoom} onValueChange={setSelectedRoom}>
-            <SelectTrigger>
-              <SelectValue placeholder="選擇教室" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ipad">iPad教室</SelectItem>
-              <SelectItem value="chromebook">Chromebook教室</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={currentWeek.toString()} onValueChange={(v) => setCurrentWeek(parseInt(v))}>
-            <SelectTrigger>
-              <SelectValue placeholder="選擇週次" />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: 52 }).map((_, i) => (
-                <SelectItem key={i + 1} value={(i + 1).toString()}>
-                  第{i + 1}週 ({getWeekDates(i + 1)[0]}-{getWeekDates(i + 1)[5]})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div class="year-month-selector">
+            <select id="year-selector" onchange="updateCalendar()">
+                <option value="114">114年</option>
+                <option value="115">115年</option>
+            </select>
+            <select id="month-selector" onchange="updateCalendar()">
+                ${Array.from({ length: 12 }, (_, i) => <option value="${i + 1}">${i + 1}月</option>).join('')}
+            </select>
+            <button onclick="changeDate()">確定</button>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {selectedRoom === 'ipad' ? 'iPad教室' : 'Chromebook教室'} - 第{currentWeek}週借用狀況
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className="border p-2 bg-blue-100">節次</th>
-                    {getWeekDates(currentWeek).map((date, i) => (
-                      <th key={i} className="border p-2 bg-blue-100">
-                        {['一', '二', '三', '四', '五', '六'][i]}({date})
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {Array.from({ length: 8 }).map((_, period) => (
-                    <tr key={period}>
-                      <td className="border p-2 bg-blue-50 text-center">{period + 1}</td>
-                      {Array.from({ length: 6 }).map((_, day) => {
-                        const cellValue = getCellValue(currentWeek, day, period);
-                        return (
-                          <td key={day} className="border p-2">
-                            {isAdmin ? (
-                              <Select
-                                value={cellValue}
-                                onValueChange={(value) => updateSchedule(currentWeek, day, period, value)}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue>
-                                    {getDisplayValue(cellValue)}
-                                  </SelectValue>
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="available">可借用</SelectItem>
-                                  <SelectItem value="blocked">單節不可借用</SelectItem>
-                                  <SelectItem value="weekly-blocked">每週皆不可借用</SelectItem>
-                                  <SelectItem value="divider" disabled>
-                                    ───── 借用者名單 ─────
-                                  </SelectItem>
-                                  {borrowers.map((borrower) => (
-                                    <SelectItem key={borrower} value={borrower}>
-                                      {borrower}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <div className={`min-h-[2rem] flex items-center justify-center ${
-                                cellValue === 'blocked' || cellValue === 'weekly-blocked' 
-                                  ? 'bg-gray-200' 
-                                  : ''
-                              }`}>
-                                {getDisplayValue(cellValue)}
-                              </div>
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Dialog open={showLogin} onOpenChange={setShowLogin}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>管理者登入</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <Input
-                placeholder="帳號"
-                value={loginDetails.username}
-                onChange={(e) => setLoginDetails(prev => ({ ...prev, username: e.target.value }))}
-              />
-              <Input
-                type="password"
-                placeholder="密碼"
-                value={loginDetails.password}
-                onChange={(e) => setLoginDetails(prev => ({ ...prev, password: e.target.value }))}
-              />
-              <Button onClick={handleLogin}>登入</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+        <div>
+            <input type="file" id="file-input" accept=".txt" onchange="loadFile()">
+            <button onclick="uploadFile()">上傳名單</button>
+        </div>
+        <div class="classroom" id="digital-classroom">
+            <h2>數位教室</h2>
+            <div id="digital-calendar"></div>
+        </div>
+        <div class="classroom" id="social-classroom">
+            <h2>社會教室</h2>
+            <div id="social-calendar"></div>
+        </div>
     </div>
-  );
-};
 
-export default DeviceBorrowingSystem;
+    <script>
+        const weekDays = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+        const periods = 8; // 每天8節課
+        const maxPeople = 60; // 每個時段最多60人
+        let currentWeek = 1;
+        let currentYear = 114;
+        let currentMonth = 1;
+
+        // 假設有一個從外部匯入的名單
+        let peopleList = Array.from({ length: maxPeople }, (_, i) => `學生${i + 1}`);
+
+        function createTable(classroomId, classroomName) {
+            const container = document.getElementById(`${classroomId}-calendar`);
+            let table = '<table><thead><tr><th>時間</th>';
+
+            const firstDay = new Date(`${currentYear + 1911}-${String(currentMonth).padStart(2, '0')}-01`);
+            const firstDayOfWeek = (firstDay.getDay() + 6) % 7; // 以星期一為第一天
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDayOfWeek);
+
+            for (let i = 0; i < weekDays.length; i++) {
+                const date = new Date(startDate);
+                date.setDate(date.getDate() + i);
+                const dateStr = `${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+                table += `<th>${weekDays[i]}<br>${dateStr}</th>`;
+            }
+
+            table += '</tr></thead><tbody>';
+
+            for (let period = 1; period <= periods; period++) {
+                table += `<tr><td>第${period}節</td>`;
+
+                for (let day = 0; day < weekDays.length; day++) {
+                    table += `<td>
+                                <select>
+                                    <option value="">選擇借用人</option>
+                                    ${peopleList.map(person => `<option value="${person}">${person}</option>`).join('')}
+                                </select>
+                                <button onclick="disablePeriod('${classroomId}', ${day}, ${period})">不可借用</button>
+                              </td>`;
+                }
+
+                table += '</tr>';
+            }
+
+            table += '</tbody></table>';
+            container.innerHTML = table;
+        }
+
+        function disablePeriod(classroomId, day, period) {
+            const cell = document.querySelector(`#${classroomId}-calendar table tbody tr:nth-child(${period}) td:nth-child(${day + 2})`);
+            cell.innerHTML = '不可借用';
+            cell.style.backgroundColor = '#90caf9';
+        }
+
+        function changeWeek(offset) {
+            currentWeek += offset;
+            if (currentWeek < 1) currentWeek = 1;
+            document.getElementById('current-week').textContent = `${currentYear}年第${currentWeek}週`;
+            createTable('digital', '數位教室');
+            createTable('social', '社會教室');
+        }
+
+        function changeDate() {
+            const year = document.getElementById('year-selector').value;
+            const month = document.getElementById('month-selector').value;
+            currentYear = parseInt(year);
+            currentMonth = parseInt(month);
+            alert(`切換至 ${year} 年 ${month} 月`);
+            updateCalendar();
+        }
+
+        function updateCalendar() {
+            createTable('digital', '數位教室');
+            createTable('social', '社會教室');
+        }
+
+        function loadFile() {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function() {
+                peopleList = reader.result.split('\n').filter(line => line.trim());
+                alert('名單已讀取！');
+                // 重新產生表格，更新名單
+                createTable('digital', '數位教室');
+                createTable('social', '社會教室');
+            };
+            reader.readAsText(file);
+        }
+
+        function uploadFile() {
+            const fileInput = document.getElementById('file-input');
+            fileInput.click();
+        }
+
+        // 初始化兩個教室的表格
+        createTable('digital', '數位教室');
+        createTable('social', '社會教室');
+    </script>
+</body>
+</html>
