@@ -138,6 +138,21 @@
     // 從 print.txt 讀取教師名單 (這裡先模擬)
     const teachers = ['王曉明', '李小華', '張大同']; // 應該從檔案讀取
     
+    // 週期日期對應表
+    const weekDates = [
+      "0101~0107", "0108~0114", "0115~0121", "0122~0128", "0129~0204",
+      "0205~0211", "0212~0218", "0219~0225", "0226~0303", "0304~0310",
+      "0311~0317", "0318~0324", "0325~0331", "0401~0407", "0408~0414",
+      "0415~0421", "0422~0428", "0429~0505", "0506~0512", "0513~0519",
+      "0520~0526", "0527~0602", "0603~0609", "0610~0616", "0617~0623",
+      "0624~0630", "0701~0707", "0708~0714", "0715~0721", "0722~0728",
+      "0729~0804", "0805~0811", "0812~0818", "0819~0825", "0826~0901",
+      "0902~0908", "0909~0915", "0916~0922", "0923~0929", "0930~1006",
+      "1007~1013", "1014~1020", "1021~1027", "1028~1103", "1104~1110",
+      "1111~1117", "1118~1124", "1125~1201", "1202~1208", "1209~1215",
+      "1216~1222", "1223~1229", "1230~1231"
+    ];
+    
     // 儲存所有排程資料的物件
     const scheduleData = {
       ipad: Array(52).fill().map(() => 
@@ -167,7 +182,7 @@
       for(let i = 1; i <= 52; i++) {
         const option = document.createElement('option');
         option.value = i;
-        option.textContent = `第${i}週`;
+        option.textContent = `第${i}週 (${weekDates[i-1]})`;
         weekSelect.appendChild(option);
       }
       weekSelect.value = currentWeek;
@@ -198,7 +213,6 @@
               ${teachers.map(t => `<option value="${t}">${t}</option>`).join('')}
             `;
             
-            // 設定當前值
             if(cellData.permanentBlocked) {
               select.value = 'permanent-blocked';
               cell.classList.add('permanent-blocked');
@@ -212,7 +226,6 @@
             select.addEventListener('change', (e) => {
               const value = e.target.value;
               if(value === 'permanent-blocked') {
-                // 設定所有週次的該時段為永久不可借用
                 for(let week = 0; week < 52; week++) {
                   scheduleData[room][week][period-1][day].permanentBlocked = true;
                   scheduleData[room][week][period-1][day].status = 'blocked';
