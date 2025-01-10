@@ -6,50 +6,39 @@
     <title>營北國中載具借用系統</title>
     <style>
         body {
-            font-family: 'Microsoft JhengHei', sans-serif;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb), url('https://via.placeholder.com/800') no-repeat center;
+            background-size: cover;
+            color: #0d47a1;
             margin: 0;
             padding: 0;
-            background: #e3f2fd url('https://via.placeholder.com/150') repeat; /* 隨機幾何圖形背景 */
-            color: #1a237e;
-            text-align: center;
         }
         header {
-            background-color: #0d47a1;
-            padding: 10px 20px;
+            background-color: #1e88e5;
             color: white;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 1.8em;
-        }
-        nav {
-            margin-top: 15px;
+            padding: 15px 10px;
+            text-align: center;
+            font-size: 1.5em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .container {
             max-width: 1200px;
             margin: 20px auto;
-            background: white;
             padding: 20px;
+            background-color: white;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        select, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #90caf9;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table th, table td {
-            border: 1px solid #90caf9;
-            padding: 10px;
+        h1 {
+            color: #1565c0;
             text-align: center;
+        }
+        select, button, input {
+            font-size: 1.1em;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #90caf9;
         }
         button {
             background-color: #1e88e5;
@@ -60,74 +49,129 @@
             background-color: #1565c0;
         }
         .login-link {
-            position: fixed;
+            position: absolute;
             top: 10px;
             right: 10px;
-            background-color: #1e88e5;
             color: white;
-            padding: 10px;
-            border-radius: 5px;
+            font-size: 1em;
             text-decoration: none;
         }
         .login-link:hover {
-            background-color: #1565c0;
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #90caf9;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>營北國中載具借用系統</h1>
-        <a href="login.html" class="login-link">管理者登入</a>
+        營北國中載具借用系統
+        <a href="#" class="login-link" onclick="showLogin()">管理登入</a>
     </header>
-
     <div class="container">
-        <nav>
-            <select id="classroomSelect">
+        <div id="main-content">
+            <h1>本週教室借用狀況</h1>
+            <select id="classroom-select" onchange="updateTable()">
                 <option value="digital">數位教室</option>
                 <option value="social">社會教室</option>
             </select>
-            <button onclick="loadWeekData()">查詢當週借用狀況</button>
-        </nav>
-
-        <div id="scheduleContainer">
-            <!-- 借用時段表會動態載入 -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>星期</th>
+                        <th>日期</th>
+                        <th>節次</th>
+                        <th>借用人</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-body">
+                    <!-- 動態生成內容 -->
+                </tbody>
+            </table>
+        </div>
+        <div id="admin-content" class="hidden">
+            <h1>管理者功能</h1>
+            <button onclick="uploadList()">上傳名單</button>
+            <input type="file" id="file-upload" class="hidden" onchange="handleFileUpload()">
+            <p id="file-feedback"></p>
+        </div>
+        <div id="login-modal" class="hidden">
+            <h1>登入管理介面</h1>
+            <label for="username">帳號</label>
+            <input type="text" id="username" placeholder="輸入帳號">
+            <label for="password">密碼</label>
+            <input type="password" id="password" placeholder="輸入密碼">
+            <button onclick="login()">登入</button>
         </div>
     </div>
-
     <script>
-        function loadWeekData() {
-            const classroom = document.getElementById('classroomSelect').value;
-            const currentDate = new Date();
-            const weekStart = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1));
-            let weekDataHTML = '<table><tr><th>節次\\日期</th>';
+        const admin = { username: "scott0718", password: "is0718" };
+        const schedule = {}; // 儲存借用狀況
 
-            for (let i = 0; i < 6; i++) {
-                const date = new Date(weekStart);
-                date.setDate(weekStart.getDate() + i);
-                const dateString = `${('0' + (date.getMonth() + 1)).slice(-2)}${('0' + date.getDate()).slice(-2)}`;
-                weekDataHTML += `<th>星期${i + 1} (${dateString})</th>`;
-            }
-
-            weekDataHTML += '</tr>';
-
-            for (let j = 1; j <= 8; j++) {
-                weekDataHTML += `<tr><td>第${j}節</td>`;
-                for (let k = 0; k < 6; k++) {
-                    weekDataHTML += `<td><select>
-                                        <option value="1">借用人</option>
-                                        <option value="2">不可借用</option>
-                                        <option value="3">每週不可借用</option>
-                                     </select></td>`;
-                }
-                weekDataHTML += '</tr>';
-            }
-
-            weekDataHTML += '</table>';
-            document.getElementById('scheduleContainer').innerHTML = weekDataHTML;
+        function showLogin() {
+            document.getElementById("login-modal").classList.remove("hidden");
         }
 
-        // 預設載入當週借用狀況
-        window.onload = loadWeekData;
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            if (username === admin.username && password === admin.password) {
+                document.getElementById("main-content").classList.add("hidden");
+                document.getElementById("admin-content").classList.remove("hidden");
+                document.getElementById("login-modal").classList.add("hidden");
+                alert("登入成功！");
+            } else {
+                alert("帳號或密碼錯誤！");
+            }
+        }
+
+        function updateTable() {
+            const classroom = document.getElementById("classroom-select").value;
+            const tbody = document.getElementById("schedule-body");
+            tbody.innerHTML = ""; // 清空舊資料
+            for (let day = 1; day <= 6; day++) {
+                for (let period = 1; period <= 8; period++) {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>星期${day}</td>
+                        <td>010${day}</td>
+                        <td>${period}</td>
+                        <td>--</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            }
+        }
+
+        function uploadList() {
+            document.getElementById("file-upload").click();
+        }
+
+        function handleFileUpload() {
+            const file = document.getElementById("file-upload").files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+                document.getElementById("file-feedback").textContent = "檔案上傳成功";
+            };
+            reader.readAsText(file);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateTable(); // 初始化表格
+        });
     </script>
 </body>
 </html>
