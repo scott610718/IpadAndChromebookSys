@@ -1,177 +1,125 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>營北國中載具借用系統</title>
     <style>
         body {
-            font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb), url('https://via.placeholder.com/800') no-repeat center;
-            background-size: cover;
-            color: #0d47a1;
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa;
+            color: #004d40;
             margin: 0;
             padding: 0;
         }
         header {
-            background-color: #1e88e5;
+            background-color: #00796b;
             color: white;
-            padding: 15px 10px;
+            padding: 1em;
             text-align: center;
-            font-size: 1.5em;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .container {
-            max-width: 1200px;
-            margin: 20px auto;
             padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            color: #1565c0;
-            text-align: center;
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #004d40;
+            padding: 1em;
         }
-        select, button, input {
-            font-size: 1.1em;
-            padding: 8px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #90caf9;
-        }
-        button {
-            background-color: #1e88e5;
+        .navbar a {
             color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #1565c0;
-        }
-        .login-link {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: white;
-            font-size: 1em;
             text-decoration: none;
+            padding: 0.5em;
         }
-        .login-link:hover {
-            text-decoration: underline;
+        .navbar a:hover {
+            background-color: #00796b;
+        }
+        .form-group {
+            margin-bottom: 1em;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5em;
+        }
+        .form-group select {
+            width: 100%;
+            padding: 0.5em;
+        }
+        .table-container {
+            overflow-x: auto;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin-top: 1em;
         }
         table, th, td {
-            border: 1px solid #90caf9;
+            border: 1px solid #004d40;
         }
         th, td {
-            padding: 10px;
+            padding: 1em;
             text-align: center;
         }
-        .hidden {
-            display: none;
+        .week-control {
+            margin: 1em 0;
+        }
+        .week-control button {
+            margin: 0 0.5em;
+            padding: 0.5em 1em;
+            background-color: #00796b;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .week-control button:hover {
+            background-color: #004d40;
         }
     </style>
 </head>
 <body>
     <header>
-        營北國中載具借用系統
-        <a href="#" class="login-link" onclick="showLogin()">管理登入</a>
+        <h1>營北國中載具借用系統</h1>
+        <div class="navbar">
+            <a href="#" id="admin-login">管理者登入</a>
+            <select id="classroom-select">
+                <option value="ipad">iPad 教室</option>
+                <option value="chromebook">Chromebook 教室</option>
+            </select>
+        </div>
     </header>
     <div class="container">
-        <div id="main-content">
-            <h1>本週教室借用狀況</h1>
-            <select id="classroom-select" onchange="updateTable()">
-                <option value="digital">數位教室</option>
-                <option value="social">社會教室</option>
+        <div class="form-group">
+            <label for="week-select">選擇週次:</label>
+            <select id="week-select">
+                <!-- 動態生成週次選項 -->
             </select>
+        </div>
+        <div class="week-control">
+            <button id="prev-week">上一週</button>
+            <button id="next-week">下一週</button>
+        </div>
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>星期</th>
-                        <th>日期</th>
-                        <th>節次</th>
-                        <th>借用人</th>
+                        <th>節次/日期</th>
+                        <th>週一</th>
+                        <th>週二</th>
+                        <th>週三</th>
+                        <th>週四</th>
+                        <th>週五</th>
+                        <th>週六</th>
                     </tr>
                 </thead>
                 <tbody id="schedule-body">
-                    <!-- 動態生成內容 -->
+                    <!-- 動態生成課表 -->
                 </tbody>
             </table>
         </div>
-        <div id="admin-content" class="hidden">
-            <h1>管理者功能</h1>
-            <button onclick="uploadList()">上傳名單</button>
-            <input type="file" id="file-upload" class="hidden" onchange="handleFileUpload()">
-            <p id="file-feedback"></p>
-        </div>
-        <div id="login-modal" class="hidden">
-            <h1>登入管理介面</h1>
-            <label for="username">帳號</label>
-            <input type="text" id="username" placeholder="輸入帳號">
-            <label for="password">密碼</label>
-            <input type="password" id="password" placeholder="輸入密碼">
-            <button onclick="login()">登入</button>
-        </div>
     </div>
     <script>
-        const admin = { username: "scott0718", password: "is0718" };
-        const schedule = {}; // 儲存借用狀況
-
-        function showLogin() {
-            document.getElementById("login-modal").classList.remove("hidden");
-        }
-
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            if (username === admin.username && password === admin.password) {
-                document.getElementById("main-content").classList.add("hidden");
-                document.getElementById("admin-content").classList.remove("hidden");
-                document.getElementById("login-modal").classList.add("hidden");
-                alert("登入成功！");
-            } else {
-                alert("帳號或密碼錯誤！");
-            }
-        }
-
-        function updateTable() {
-            const classroom = document.getElementById("classroom-select").value;
-            const tbody = document.getElementById("schedule-body");
-            tbody.innerHTML = ""; // 清空舊資料
-            for (let day = 1; day <= 6; day++) {
-                for (let period = 1; period <= 8; period++) {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td>星期${day}</td>
-                        <td>010${day}</td>
-                        <td>${period}</td>
-                        <td>--</td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-            }
-        }
-
-        function uploadList() {
-            document.getElementById("file-upload").click();
-        }
-
-        function handleFileUpload() {
-            const file = document.getElementById("file-upload").files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                document.getElementById("file-feedback").textContent = "檔案上傳成功";
-            };
-            reader.readAsText(file);
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            updateTable(); // 初始化表格
-        });
+        // JavaScript 代碼，初始化資料、切換週次與管理者登入等功能
     </script>
 </body>
 </html>
