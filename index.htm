@@ -8,20 +8,43 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            background: linear-gradient(135deg, #e0f7fa, #0288d1);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        h1 {
-            text-align: center;
+        header {
+            width: 100%;
+            padding: 10px 20px;
+            background-color: #01579b;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .login-form, .management-panel {
-            max-width: 400px;
+        header h1 {
+            margin: 0;
+        }
+        header a {
+            color: #fff;
+            text-decoration: none;
+            padding: 5px 10px;
+            background-color: #0288d1;
+            border-radius: 5px;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
             margin: 20px auto;
-            padding: 20px;
-            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-        .hidden {
-            display: none;
+        h2 {
+            color: #01579b;
         }
         table {
             width: 100%;
@@ -29,123 +52,111 @@
             margin-bottom: 20px;
         }
         table, th, td {
-            border: 1px solid #000;
+            border: 1px solid #01579b;
         }
         th, td {
-            padding: 5px;
+            padding: 10px;
             text-align: center;
+        }
+        select {
+            width: 100%;
+        }
+        footer {
+            margin-top: auto;
+            padding: 10px;
+            background-color: #01579b;
+            text-align: center;
+            color: #fff;
+        }
+        @media (max-width: 768px) {
+            table, th, td {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>營北國中載具借用系統</h1>
+    <header>
+        <h1>營北國中載具借用系統</h1>
+        <a href="login.html">管理者登入</a>
+    </header>
 
-    <div class="login-form">
-        <h2>管理登入</h2>
-        <label for="username">帳號：</label>
-        <input type="text" id="username" required><br><br>
-        <label for="password">密碼：</label>
-        <input type="password" id="password" required><br><br>
-        <button id="login-btn">登入</button>
-    </div>
-
-    <div class="management-panel hidden">
-        <h2>管理面板</h2>
-        <button id="upload-list">上傳名單</button>
-        <input type="file" id="file-input" class="hidden"><br><br>
-        <button id="save-to-cloud">存檔至 Google 雲端硬碟</button><br><br>
-
-        <h3>選擇教室</h3>
-        <select id="classroom-selector">
-            <option value="digital">數位教室</option>
-            <option value="social">社會教室</option>
-        </select>
-
-        <h3>選擇週次</h3>
+    <div class="container">
+        <h2>教室借用狀況</h2>
+        <label for="week-selector">選擇週次：</label>
         <select id="week-selector"></select>
 
-        <div id="schedule">
-            <h3>借用登記表</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>星期/節次</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>3</th>
-                        <th>4</th>
-                        <th>5</th>
-                        <th>6</th>
-                        <th>7</th>
-                        <th>8</th>
-                    </tr>
-                </thead>
-                <tbody id="schedule-body"></tbody>
-            </table>
-        </div>
+        <h3>數位教室</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>星期/節次</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th>8</th>
+                </tr>
+            </thead>
+            <tbody id="digital-schedule-body"></tbody>
+        </table>
+
+        <h3>社會教室</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>星期/節次</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th>8</th>
+                </tr>
+            </thead>
+            <tbody id="social-schedule-body"></tbody>
+        </table>
     </div>
 
-    <script>
-        // Define the admin credentials
-        const ADMIN_CREDENTIALS = { username: "scott0718", password: "is0718" };
+    <footer>
+        &copy; 2025 營北國中
+    </footer>
 
-        // Populate week selector
+    <script>
+        // Set the current week as default and populate week selector
+        const currentWeek = Math.ceil(new Date().getDate() / 7);
+
         for (let week = 1; week <= 52; week++) {
-            $("#week-selector").append(`<option value="week${week}">第${week}週</option>`);
+            $("#week-selector").append(`<option value="week${week}" ${week === currentWeek ? 'selected' : ''}>第${week}週</option>`);
         }
 
-        // Login functionality
-        $("#login-btn").click(function() {
-            const username = $("#username").val();
-            const password = $("#password").val();
-
-            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-                alert("登入成功！");
-                $(".login-form").addClass("hidden");
-                $(".management-panel").removeClass("hidden");
-            } else {
-                alert("帳號或密碼錯誤！");
-            }
-        });
-
-        // Show file input on upload button click
-        $("#upload-list").click(function() {
-            $("#file-input").click();
-        });
-
-        // Generate schedule table
-        function generateScheduleTable() {
+        // Generate empty schedule for both classrooms
+        function generateScheduleTable(tbodyId) {
             const days = ["一", "二", "三", "四", "五", "六"];
-            const tbody = $("#schedule-body");
+            const tbody = $(tbodyId);
             tbody.empty();
 
             for (let day = 0; day < days.length; day++) {
                 const row = $(`<tr><td>星期${days[day]}</td></tr>`);
-
                 for (let period = 1; period <= 8; period++) {
-                    const cell = $(`<td><select>
-                        <option value="">選擇</option>
-                        <option value="借用">借用</option>
-                        <option value="不可借用">不可借用</option>
-                        <option value="週次不可借用">週次不可借用</option>
-                    </select></td>`);
-                    row.append(cell);
+                    row.append('<td>-</td>');
                 }
                 tbody.append(row);
             }
         }
 
-        generateScheduleTable();
+        generateScheduleTable("#digital-schedule-body");
+        generateScheduleTable("#social-schedule-body");
 
-        // Handle classroom and week changes
-        $("#classroom-selector, #week-selector").change(function() {
-            alert(`切換到${$("#classroom-selector").val()} 第${$("#week-selector").val()}週`);
-            // Load schedule data based on selected classroom and week
-        });
-
-        // Save to Google Drive (placeholder)
-        $("#save-to-cloud").click(function() {
-            alert("存檔功能尚未實現");
+        // Update schedules when week selector changes
+        $("#week-selector").change(function() {
+            alert(`切換到第${$(this).val().replace('week', '')}週`);
+            // Load schedule data based on selected week
         });
     </script>
 </body>
