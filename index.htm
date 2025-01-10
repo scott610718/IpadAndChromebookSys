@@ -4,160 +4,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>營北國中載具借用系統</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            background: linear-gradient(135deg, #e0f7fa, #0288d1);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 0;
+            background: #e0f7fa;
+            color: #000;
         }
+
         header {
-            width: 100%;
-            padding: 10px 20px;
-            background-color: #01579b;
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h1 {
-            margin: 0;
-        }
-        header a {
-            color: #fff;
-            text-decoration: none;
-            padding: 5px 10px;
             background-color: #0288d1;
-            border-radius: 5px;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
         }
+
+        nav {
+            background-color: #01579b;
+            padding: 10px;
+            text-align: right;
+        }
+
+        nav a {
+            color: white;
+            margin-left: 20px;
+            text-decoration: none;
+        }
+
         .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 20px auto;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-        h2 {
-            color: #01579b;
+
+        .week-selector {
+            margin-bottom: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
+
         table, th, td {
-            border: 1px solid #01579b;
+            border: 1px solid #0288d1;
         }
+
         th, td {
-            padding: 10px;
             text-align: center;
+            padding: 8px;
         }
-        select {
-            width: 100%;
-        }
-        footer {
-            margin-top: auto;
-            padding: 10px;
-            background-color: #01579b;
+
+        .login {
             text-align: center;
-            color: #fff;
+            margin: 20px auto;
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #0288d1;
+            border-radius: 10px;
+            background-color: #b3e5fc;
         }
-        @media (max-width: 768px) {
-            table, th, td {
-                font-size: 0.8rem;
-            }
+
+        .btn {
+            padding: 8px 16px;
+            margin: 5px;
+            background-color: #0288d1;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn:hover {
+            background-color: #0277bd;
         }
     </style>
 </head>
 <body>
     <header>
         <h1>營北國中載具借用系統</h1>
-        <a href="login.html">管理者登入</a>
     </header>
-
+    <nav>
+        <a href="#" id="login-link">管理者登入</a>
+    </nav>
     <div class="container">
         <h2>教室借用狀況</h2>
-        <label for="week-selector">選擇週次：</label>
-        <select id="week-selector"></select>
+        <div class="week-selector">
+            <label for="week">選擇週次：</label>
+            <select id="week">
+                <!-- Dynamic week options -->
+            </select>
+        </div>
+        <div id="booking-status">
+            <h3>數位教室</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>節次</th>
+                        <th>星期一</th>
+                        <th>星期二</th>
+                        <th>星期三</th>
+                        <th>星期四</th>
+                        <th>星期五</th>
+                        <th>星期六</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows for 8 periods -->
+                </tbody>
+            </table>
 
-        <h3>數位教室</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>星期/節次</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                </tr>
-            </thead>
-            <tbody id="digital-schedule-body"></tbody>
-        </table>
-
-        <h3>社會教室</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>星期/節次</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                </tr>
-            </thead>
-            <tbody id="social-schedule-body"></tbody>
-        </table>
+            <h3>社會教室</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>節次</th>
+                        <th>星期一</th>
+                        <th>星期二</th>
+                        <th>星期三</th>
+                        <th>星期四</th>
+                        <th>星期五</th>
+                        <th>星期六</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows for 8 periods -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <footer>
-        &copy; 2025 營北國中
-    </footer>
+    <div id="login-modal" class="login" style="display: none;">
+        <h3>管理者登入</h3>
+        <form id="login-form">
+            <div>
+                <label for="username">帳號：</label>
+                <input type="text" id="username" required>
+            </div>
+            <div>
+                <label for="password">密碼：</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="btn">登入</button>
+        </form>
+    </div>
 
     <script>
-        // Set the current week as default and populate week selector
-        const currentWeek = Math.ceil(new Date().getDate() / 7);
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginLink = document.getElementById('login-link');
+            const loginModal = document.getElementById('login-modal');
+            const loginForm = document.getElementById('login-form');
 
-        for (let week = 1; week <= 52; week++) {
-            $("#week-selector").append(`<option value="week${week}" ${week === currentWeek ? 'selected' : ''}>第${week}週</option>`);
-        }
+            loginLink.addEventListener('click', () => {
+                loginModal.style.display = 'block';
+            });
 
-        // Generate empty schedule for both classrooms
-        function generateScheduleTable(tbodyId) {
-            const days = ["一", "二", "三", "四", "五", "六"];
-            const tbody = $(tbodyId);
-            tbody.empty();
+            loginForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
 
-            for (let day = 0; day < days.length; day++) {
-                const row = $(`<tr><td>星期${days[day]}</td></tr>`);
-                for (let period = 1; period <= 8; period++) {
-                    row.append('<td>-</td>');
+                if (username === 'scott0718' && password === 'is0718') {
+                    alert('登入成功！');
+                    loginModal.style.display = 'none';
+                    // Redirect or display admin panel logic here
+                } else {
+                    alert('帳號或密碼錯誤！');
                 }
-                tbody.append(row);
+            });
+
+            // Initialize weeks dropdown
+            const weekSelect = document.getElementById('week');
+            for (let i = 1; i <= 52; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `第${i}週`;
+                weekSelect.appendChild(option);
             }
-        }
 
-        generateScheduleTable("#digital-schedule-body");
-        generateScheduleTable("#social-schedule-body");
+            weekSelect.value = new Date().getWeek(); // Default to the current week
 
-        // Update schedules when week selector changes
-        $("#week-selector").change(function() {
-            alert(`切換到第${$(this).val().replace('week', '')}週`);
-            // Load schedule data based on selected week
+            // Add more dynamic behaviors here...
         });
+
+        // Utility to calculate the week number of the year
+        Date.prototype.getWeek = function () {
+            const firstDayOfYear = new Date(this.getFullYear(), 0, 1);
+            const pastDaysOfYear = (this - firstDayOfYear) / 86400000;
+            return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+        };
     </script>
 </body>
 </html>
