@@ -56,17 +56,33 @@
     .permanent-blocked {
       background-color: #dddddd;
     }
+
+    .admin-controls {
+      margin-bottom: 15px;
+    }
+
+    #fileInput {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">營北國中載具借用系統</a>
-      <button id="loginBtn" class="btn btn-light">管理者登入</button>
+      <div>
+        <button id="loginBtn" class="btn btn-light">管理者登入</button>
+      </div>
     </div>
   </nav>
 
   <div class="container">
+    <div class="admin-controls" style="display: none;">
+      <button id="exportBtn" class="btn btn-secondary">輸出檔案</button>
+      <button id="importBtn" class="btn btn-secondary">匯入檔案</button>
+      <input type="file" id="fileInput" accept=".json">
+    </div>
+
     <div class="row mb-3">
       <div class="col">
         <select id="roomSelect" class="form-select">
@@ -133,12 +149,19 @@
     const ADMIN_USERNAME = "114";
     const ADMIN_PASSWORD = "114";
     let isAdmin = false;
-    let currentWeek = 1;
     
-    // 從 print.txt 讀取教師名單 (這裡先模擬)
-    const teachers = ['王曉明', '李小華', '張大同']; // 應該從檔案讀取
+    function getCurrentWeek() {
+      const today = new Date(2024, 0, 11); 
+      const startYear = new Date(2024, 0, 1);
+      const diffTime = Math.abs(today - startYear);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.ceil(diffDays / 7);
+    }
     
-    // 週期日期對應表
+    let currentWeek = getCurrentWeek();
+    
+    const teachers = ['王曉明', '李小華', '張大同'];
+    
     const weekDates = [
       "0101~0107", "0108~0114", "0115~0121", "0122~0128", "0129~0204",
       "0205~0211", "0212~0218", "0219~0225", "0226~0303", "0304~0310",
@@ -153,7 +176,6 @@
       "1216~1222", "1223~1229", "1230~1231"
     ];
     
-    // 儲存所有排程資料的物件
     const scheduleData = {
       ipad: Array(52).fill().map(() => 
         Array(8).fill().map(() => 
@@ -175,7 +197,32 @@
       )
     };
 
-    // 初始化週次選項
+    function exportSchedule() {
+      const dataStr = JSON.stringify(scheduleData);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      const exportFileDefaultName = 'schedule_data.json';
+
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+    }
+
+    function importSchedule(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          Object.assign(scheduleData, importedData);
+          updateSchedule();
+          alert('資料匯入成功！');
+        } catch(error) {
+          alert('檔案格式錯誤！');
+        }
+      };
+      reader.readAsText(file);
+    }
+
     function initWeekSelect() {
       const weekSelect = document.getElementById('weekSelect');
       weekSelect.innerHTML = '';
@@ -188,7 +235,6 @@
       weekSelect.value = currentWeek;
     }
 
-    // 更新課表
     function updateSchedule() {
       const scheduleBody = document.getElementById('scheduleBody');
       const room = document.getElementById('roomSelect').value;
@@ -273,7 +319,6 @@
       }
     }
 
-    // 事件監聽
     document.getElementById('loginBtn').addEventListener('click', () => {
       const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
       loginModal.show();
@@ -286,10 +331,23 @@
       
       if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         isAdmin = true;
+        document.querySelector('.admin-controls').style.display = 'block';
         bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
         updateSchedule();
       } else {
         alert('帳號或密碼錯誤！');
+      }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', exportSchedule);
+    
+    document.getElementById('importBtn').addEventListener('click', () => {
+      document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      if(e.target.files.length > 0) {
+        importSchedule(e.target.files[0]);
       }
     });
 
@@ -318,7 +376,6 @@
       updateSchedule();
     });
 
-    // 初始化
     initWeekSelect();
     updateSchedule();
   </script>
