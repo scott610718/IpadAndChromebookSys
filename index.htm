@@ -1,207 +1,312 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>營北國中載具教室借用系統</title>
-    <style>
-        body {
-            font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            font-size: 125%;
-            background-color: #e3f2fd; /* 淺藍色背景 */
-            color: #1a237e; /* 深藍色文字 */
-            text-align: center;
-            padding: 20px;
-        }
-        h1 {
-            color: #0d47a1; /* 深藍標題 */
-            font-size: 2.5em;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #90caf9; /* 淺藍邊框 */
-        }
-        .classroom {
-            margin-top: 20px;
-        }
-        .classroom h2 {
-            color: #1565c0; /* 中藍標題 */
-            font-size: 2em;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        table, th, td {
-            border: 1px solid #90caf9;
-        }
-        th, td {
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #42a5f5; /* 藍色標題背景 */
-            color: white;
-        }
-        select, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            border: 1px solid #90caf9;
-        }
-        button {
-            background-color: #1e88e5; /* 藍色按鈕 */
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #1565c0; /* 深藍按鈕 (hover) */
-        }
-        .navigation {
-            margin: 20px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-    </style>
+<html><head><base href="." />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>營北國中載具借用系統</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #0d6efd;
+      --secondary-color: #e9ecef;
+    }
+    
+    body {
+      font-family: '微軟正黑體', sans-serif;
+      background-color: var(--secondary-color);
+    }
+    
+    .navbar {
+      background-color: var(--primary-color) !important;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+    }
+    
+    .table th {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .table td {
+      vertical-align: middle;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+    }
+    
+    .login-form {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .schedule-cell {
+      min-width: 150px;
+    }
+
+    .not-available {
+      background-color: #ffdddd;
+    }
+
+    .permanent-blocked {
+      background-color: #dddddd;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>營北國中載具教室借用系統</h1>
-        <div class="navigation">
-            <button onclick="changeWeek(-1)">上一週</button>
-            <span id="current-week">114年第1週</span>
-            <button onclick="changeWeek(1)">下一週</button>
-        </div>
-        <div class="year-month-selector">
-            <select id="year-selector" onchange="updateCalendar()">
-                <option value="114">114年</option>
-                <option value="115">115年</option>
-            </select>
-            <select id="month-selector" onchange="updateCalendar()">
-                ${Array.from({ length: 12 }, (_, i) => <option value="${i + 1}">${i + 1}月</option>).join('')}
-            </select>
-            <button onclick="changeDate()">確定</button>
-        </div>
-        <div>
-            <input type="file" id="file-input" accept=".txt" onchange="loadFile()">
-            <button onclick="uploadFile()">上傳名單</button>
-        </div>
-        <div class="classroom" id="digital-classroom">
-            <h2>數位教室</h2>
-            <div id="digital-calendar"></div>
-        </div>
-        <div class="classroom" id="social-classroom">
-            <h2>社會教室</h2>
-            <div id="social-calendar"></div>
-        </div>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">營北國中載具借用系統</a>
+      <button id="loginBtn" class="btn btn-light">管理者登入</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="row mb-3">
+      <div class="col">
+        <select id="roomSelect" class="form-select">
+          <option value="ipad">iPad教室</option>
+          <option value="chromebook">Chromebook教室</option>
+        </select>
+      </div>
+      <div class="col">
+        <select id="weekSelect" class="form-select">
+        </select>
+      </div>
+      <div class="col">
+        <button id="prevWeek" class="btn btn-primary">上一週</button>
+        <button id="nextWeek" class="btn btn-primary">下一週</button>
+      </div>
     </div>
 
-    <script>
-        const weekDays = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-        const periods = 8; // 每天8節課
-        const maxPeople = 60; // 每個時段最多60人
-        let currentWeek = 1;
-        let currentYear = 114;
-        let currentMonth = 1;
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>節次</th>
+            <th>週一</th>
+            <th>週二</th>
+            <th>週三</th>
+            <th>週四</th>
+            <th>週五</th>
+            <th>週六</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-        // 假設有一個從外部匯入的名單
-        let peopleList = Array.from({ length: maxPeople }, (_, i) => `學生${i + 1}`);
+  <!-- Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">管理者登入</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="loginForm">
+            <div class="mb-3">
+              <label class="form-label">帳號</label>
+              <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">密碼</label>
+              <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">登入</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        function createTable(classroomId, classroomName) {
-            const container = document.getElementById(`${classroomId}-calendar`);
-            let table = '<table><thead><tr><th>時間</th>';
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const ADMIN_USERNAME = "114";
+    const ADMIN_PASSWORD = "114";
+    let isAdmin = false;
+    let currentWeek = 1;
+    
+    // 從 print.txt 讀取教師名單 (這裡先模擬)
+    const teachers = ['王曉明', '李小華', '張大同']; // 應該從檔案讀取
+    
+    // 儲存所有排程資料的物件
+    const scheduleData = {
+      ipad: Array(52).fill().map(() => 
+        Array(8).fill().map(() => 
+          Array(6).fill().map(() => ({
+            teacher: '',
+            status: 'available',
+            permanentBlocked: false
+          }))
+        )
+      ),
+      chromebook: Array(52).fill().map(() => 
+        Array(8).fill().map(() => 
+          Array(6).fill().map(() => ({
+            teacher: '',
+            status: 'available',
+            permanentBlocked: false
+          }))
+        )
+      )
+    };
 
-            const firstDay = new Date(`${currentYear + 1911}-${String(currentMonth).padStart(2, '0')}-01`);
-            const firstDayOfWeek = (firstDay.getDay() + 6) % 7; // 以星期一為第一天
-            const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - firstDayOfWeek);
+    // 初始化週次選項
+    function initWeekSelect() {
+      const weekSelect = document.getElementById('weekSelect');
+      weekSelect.innerHTML = '';
+      for(let i = 1; i <= 52; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `第${i}週`;
+        weekSelect.appendChild(option);
+      }
+      weekSelect.value = currentWeek;
+    }
 
-            for (let i = 0; i < weekDays.length; i++) {
-                const date = new Date(startDate);
-                date.setDate(date.getDate() + i);
-                const dateStr = `${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
-                table += `<th>${weekDays[i]}<br>${dateStr}</th>`;
+    // 更新課表
+    function updateSchedule() {
+      const scheduleBody = document.getElementById('scheduleBody');
+      const room = document.getElementById('roomSelect').value;
+      scheduleBody.innerHTML = '';
+      
+      for(let period = 1; period <= 8; period++) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<th>${period}</th>`;
+        
+        for(let day = 0; day < 6; day++) {
+          const cell = document.createElement('td');
+          cell.className = 'schedule-cell';
+          const cellData = scheduleData[room][currentWeek-1][period-1][day];
+          
+          if(isAdmin) {
+            const select = document.createElement('select');
+            select.className = 'form-select';
+            select.innerHTML = `
+              <option value="available">可借用</option>
+              <option value="blocked">不可借用</option>
+              <option value="permanent-blocked">永久不可借用</option>
+              ${teachers.map(t => `<option value="${t}">${t}</option>`).join('')}
+            `;
+            
+            // 設定當前值
+            if(cellData.permanentBlocked) {
+              select.value = 'permanent-blocked';
+              cell.classList.add('permanent-blocked');
+            } else if(cellData.status === 'blocked') {
+              select.value = 'blocked';
+              cell.classList.add('not-available');
+            } else if(cellData.teacher) {
+              select.value = cellData.teacher;
             }
 
-            table += '</tr></thead><tbody>';
-
-            for (let period = 1; period <= periods; period++) {
-                table += `<tr><td>第${period}節</td>`;
-
-                for (let day = 0; day < weekDays.length; day++) {
-                    table += `<td>
-                                <select>
-                                    <option value="">選擇借用人</option>
-                                    ${peopleList.map(person => `<option value="${person}">${person}</option>`).join('')}
-                                </select>
-                                <button onclick="disablePeriod('${classroomId}', ${day}, ${period})">不可借用</button>
-                              </td>`;
+            select.addEventListener('change', (e) => {
+              const value = e.target.value;
+              if(value === 'permanent-blocked') {
+                // 設定所有週次的該時段為永久不可借用
+                for(let week = 0; week < 52; week++) {
+                  scheduleData[room][week][period-1][day].permanentBlocked = true;
+                  scheduleData[room][week][period-1][day].status = 'blocked';
+                  scheduleData[room][week][period-1][day].teacher = '';
                 }
-
-                table += '</tr>';
+                cell.classList.add('permanent-blocked');
+              } else if(value === 'blocked') {
+                cellData.status = 'blocked';
+                cellData.teacher = '';
+                cellData.permanentBlocked = false;
+                cell.classList.add('not-available');
+                cell.classList.remove('permanent-blocked');
+              } else if(value === 'available') {
+                cellData.status = 'available';
+                cellData.teacher = '';
+                cellData.permanentBlocked = false;
+                cell.classList.remove('not-available', 'permanent-blocked');
+              } else {
+                cellData.status = 'reserved';
+                cellData.teacher = value;
+                cellData.permanentBlocked = false;
+                cell.classList.remove('not-available', 'permanent-blocked');
+              }
+            });
+            
+            cell.appendChild(select);
+          } else {
+            if(cellData.permanentBlocked) {
+              cell.textContent = '永久不可借用';
+              cell.classList.add('permanent-blocked');
+            } else if(cellData.status === 'blocked') {
+              cell.textContent = '不可借用';
+              cell.classList.add('not-available');
+            } else if(cellData.teacher) {
+              cell.textContent = `借用人: ${cellData.teacher}`;
+            } else {
+              cell.textContent = '可借用';
             }
-
-            table += '</tbody></table>';
-            container.innerHTML = table;
+          }
+          
+          row.appendChild(cell);
         }
+        
+        scheduleBody.appendChild(row);
+      }
+    }
 
-        function disablePeriod(classroomId, day, period) {
-            const cell = document.querySelector(`#${classroomId}-calendar table tbody tr:nth-child(${period}) td:nth-child(${day + 2})`);
-            cell.innerHTML = '不可借用';
-            cell.style.backgroundColor = '#90caf9';
-        }
+    // 事件監聽
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+      loginModal.show();
+    });
 
-        function changeWeek(offset) {
-            currentWeek += offset;
-            if (currentWeek < 1) currentWeek = 1;
-            document.getElementById('current-week').textContent = `${currentYear}年第${currentWeek}週`;
-            createTable('digital', '數位教室');
-            createTable('social', '社會教室');
-        }
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        isAdmin = true;
+        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+        updateSchedule();
+      } else {
+        alert('帳號或密碼錯誤！');
+      }
+    });
 
-        function changeDate() {
-            const year = document.getElementById('year-selector').value;
-            const month = document.getElementById('month-selector').value;
-            currentYear = parseInt(year);
-            currentMonth = parseInt(month);
-            alert(`切換至 ${year} 年 ${month} 月`);
-            updateCalendar();
-        }
+    document.getElementById('weekSelect').addEventListener('change', (e) => {
+      currentWeek = parseInt(e.target.value);
+      updateSchedule();
+    });
 
-        function updateCalendar() {
-            createTable('digital', '數位教室');
-            createTable('social', '社會教室');
-        }
+    document.getElementById('prevWeek').addEventListener('click', () => {
+      if(currentWeek > 1) {
+        currentWeek--;
+        document.getElementById('weekSelect').value = currentWeek;
+        updateSchedule();
+      }
+    });
 
-        function loadFile() {
-            const fileInput = document.getElementById('file-input');
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-            reader.onload = function() {
-                peopleList = reader.result.split('\n').filter(line => line.trim());
-                alert('名單已讀取！');
-                // 重新產生表格，更新名單
-                createTable('digital', '數位教室');
-                createTable('social', '社會教室');
-            };
-            reader.readAsText(file);
-        }
+    document.getElementById('nextWeek').addEventListener('click', () => {
+      if(currentWeek < 52) {
+        currentWeek++;
+        document.getElementById('weekSelect').value = currentWeek;
+        updateSchedule();
+      }
+    });
 
-        function uploadFile() {
-            const fileInput = document.getElementById('file-input');
-            fileInput.click();
-        }
+    document.getElementById('roomSelect').addEventListener('change', () => {
+      updateSchedule();
+    });
 
-        // 初始化兩個教室的表格
-        createTable('digital', '數位教室');
-        createTable('social', '社會教室');
-    </script>
-</body>
-</html>
+    // 初始化
+    initWeekSelect();
+    updateSchedule();
+  </script>
+</body></html>
