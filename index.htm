@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>營北國中載具借用系統</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .login-form, .management-panel {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #000;
+        }
+        th, td {
+            padding: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>營北國中載具借用系統</h1>
+
+    <div class="login-form">
+        <h2>管理登入</h2>
+        <label for="username">帳號：</label>
+        <input type="text" id="username" required><br><br>
+        <label for="password">密碼：</label>
+        <input type="password" id="password" required><br><br>
+        <button id="login-btn">登入</button>
+    </div>
+
+    <div class="management-panel hidden">
+        <h2>管理面板</h2>
+        <button id="upload-list">上傳名單</button>
+        <input type="file" id="file-input" class="hidden"><br><br>
+        <button id="save-to-cloud">存檔至 Google 雲端硬碟</button><br><br>
+
+        <h3>選擇教室</h3>
+        <select id="classroom-selector">
+            <option value="digital">數位教室</option>
+            <option value="social">社會教室</option>
+        </select>
+
+        <h3>選擇週次</h3>
+        <select id="week-selector"></select>
+
+        <div id="schedule">
+            <h3>借用登記表</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>星期/節次</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Define the admin credentials
+        const ADMIN_CREDENTIALS = { username: "scott0718", password: "is0718" };
+
+        // Populate week selector
+        for (let week = 1; week <= 52; week++) {
+            $("#week-selector").append(`<option value="week${week}">第${week}週</option>`);
+        }
+
+        // Login functionality
+        $("#login-btn").click(function() {
+            const username = $("#username").val();
+            const password = $("#password").val();
+
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                alert("登入成功！");
+                $(".login-form").addClass("hidden");
+                $(".management-panel").removeClass("hidden");
+            } else {
+                alert("帳號或密碼錯誤！");
+            }
+        });
+
+        // Show file input on upload button click
+        $("#upload-list").click(function() {
+            $("#file-input").click();
+        });
+
+        // Generate schedule table
+        function generateScheduleTable() {
+            const days = ["一", "二", "三", "四", "五", "六"];
+            const tbody = $("#schedule-body");
+            tbody.empty();
+
+            for (let day = 0; day < days.length; day++) {
+                const row = $(`<tr><td>星期${days[day]}</td></tr>`);
+
+                for (let period = 1; period <= 8; period++) {
+                    const cell = $(`<td><select>
+                        <option value="">選擇</option>
+                        <option value="借用">借用</option>
+                        <option value="不可借用">不可借用</option>
+                        <option value="週次不可借用">週次不可借用</option>
+                    </select></td>`);
+                    row.append(cell);
+                }
+                tbody.append(row);
+            }
+        }
+
+        generateScheduleTable();
+
+        // Handle classroom and week changes
+        $("#classroom-selector, #week-selector").change(function() {
+            alert(`切換到${$("#classroom-selector").val()} 第${$("#week-selector").val()}週`);
+            // Load schedule data based on selected classroom and week
+        });
+
+        // Save to Google Drive (placeholder)
+        $("#save-to-cloud").click(function() {
+            alert("存檔功能尚未實現");
+        });
+    </script>
+</body>
+</html>
