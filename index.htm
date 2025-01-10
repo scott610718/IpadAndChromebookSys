@@ -5,20 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>營北國中載具借用系統</title>
     <style>
+        /* 基本樣式 */
         body {
             font-family: Arial, sans-serif;
             background-color: #e0f7fa;
             color: #004d40;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         header {
             background-color: #00796b;
             color: white;
-            padding: 1em;
             text-align: center;
+            padding: 1em;
+            position: relative;
+        }
+        header h1 {
+            margin: 0;
         }
         .container {
+            flex: 1;
             padding: 20px;
         }
         .navbar {
@@ -75,6 +84,19 @@
         .week-control button:hover {
             background-color: #004d40;
         }
+
+        /* 隨機幾何圖形背景 */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e0f7fa"/><circle cx="50" cy="50" r="50" fill="%23007d71" opacity="0.7"/><rect x="10" y="10" width="30" height="30" fill="%23004d40" opacity="0.7"/></svg>') repeat;
+            z-index: -1;
+            opacity: 0.1;
+        }
     </style>
 </head>
 <body>
@@ -119,7 +141,90 @@
         </div>
     </div>
     <script>
-        // JavaScript 代碼，初始化資料、切換週次與管理者登入等功能
+        // JavaScript 代碼部分
+        document.addEventListener('DOMContentLoaded', function() {
+            const userList = [
+                "黃美玲", "李靜汝", "田慧晶", "江佳容", "林怡彣", "李立德", "李雯琪", "張心怡", "洪錦男",
+                "許志豪", "林明輝", "林淑楨", "林秀貞", "黃綉媛", "王耀賢", "莊雅如", "陳怡妏", "陳育德",
+                "蕭慧純", "李蕎至", "蔡呈熙", "李宜芳", "鄧伊芳", "曾柏蓉", "魏俊益", "崔愉雯", "徐錫穎",
+                "張茱貽", "張智鈞", "洪振民", "蔡怡君", "林佳蓉", "張瀞云", "陳立崗", "徐嘉禧", "楊海萍",
+                "鍾菁菁", "吳政翰", "林明德", "許淑智", "唐瑄", "曾怡儒", "張麗娟", "蘇琮筆", "Kristine Can"
+            ];
+
+            const weekSelect = document.getElementById('week-select');
+            const scheduleBody = document.getElementById('schedule-body');
+
+            function generateWeekOptions() {
+                for (let i = 1; i <= 52; i++) {
+                    let option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `第 ${i} 週`;
+                    weekSelect.appendChild(option);
+                }
+            }
+
+            function generateScheduleTable(weekNumber) {
+                scheduleBody.innerHTML = '';
+                const days = ["週一", "週二", "週三", "週四", "週五", "週六"];
+                const today = new Date(new Date().getFullYear(), 0, 1 + (weekNumber - 1) * 7);
+                for (let i = 1; i <= 8; i++) {
+                    let row = document.createElement('tr');
+                    let date = new Date(today);
+                    date.setDate(today.getDate() + (i - 1));
+                    row.innerHTML = `<td>第${i}節 / ${date.getMonth() + 1}${date.getDate()}</td>`;
+                    for (let j = 0; j < 6; j++) {
+                        row.innerHTML += `<td><select>
+                                            <option value="none">--</option>
+                                            <option value="borrower">借用人</option>
+                                            <option value="unavailable">不可借用</option>
+                                            <option value="weekly-unavailable">設定每週不可借用</option>
+                                        </select></td>`;
+                    }
+                    scheduleBody.appendChild(row);
+                }
+            }
+
+            generateWeekOptions();
+            weekSelect.value = new Date().getWeekNumber();  // 初始化當前週次
+            generateScheduleTable(weekSelect.value);
+
+            weekSelect.addEventListener('change', function() {
+                generateScheduleTable(weekSelect.value);
+            });
+
+            document.getElementById('prev-week').addEventListener('click', function() {
+                if (weekSelect.value > 1) {
+                    weekSelect.value--;
+                    generateScheduleTable(weekSelect.value);
+                }
+            });
+
+            document.getElementById('next-week').addEventListener('click', function() {
+                if (weekSelect.value < 52) {
+                    weekSelect.value++;
+                    generateScheduleTable(weekSelect.value);
+                }
+            });
+
+            document.getElementById('admin-login').addEventListener('click', function() {
+                const username = prompt('請輸入帳號');
+                const password = prompt('請輸入密碼');
+                if (username === '114' && password === '114') {
+                    alert('登入成功！');
+                } else {
+                    alert('帳號或密碼錯誤');
+                }
+            });
+
+            // Helper function to get current week number
+            Date.prototype.getWeekNumber = function() {
+                var d = new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate()));
+                var dayNum = d.getUTCDay() || 7;
+                d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+                var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            };
+        });
     </script>
 </body>
 </html>
