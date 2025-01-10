@@ -149,7 +149,7 @@
 const ADMIN_PASSWORD = "114";
 let isAdmin = false;
 function getCurrentWeek() {
-  const today = new Date();
+  const today = new Date(2024, 0, 11);
   const startYear = new Date(2024, 0, 1);
   const diffTime = Math.abs(today - startYear);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -170,22 +170,6 @@ const scheduleData = {
     permanentBlocked: false
   }))))
 };
-async function loadScheduleFromURL() {
-  try {
-    updateSchedule();
-  } catch (error) {
-    console.error('Failed to load schedule data:', error);
-  }
-}
-async function saveScheduleToURL() {
-  try {
-    return true;
-  } catch (error) {
-    console.error('Failed to save schedule data:', error);
-    alert('儲存資料失敗！');
-    return false;
-  }
-}
 function exportSchedule() {
   const dataStr = JSON.stringify(scheduleData);
   const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
@@ -195,9 +179,9 @@ function exportSchedule() {
   linkElement.setAttribute('download', exportFileDefaultName);
   linkElement.click();
 }
-async function importSchedule(file) {
+function importSchedule(file) {
   const reader = new FileReader();
-  reader.onload = async function (e) {
+  reader.onload = function (e) {
     try {
       const importedData = JSON.parse(e.target.result);
       Object.assign(scheduleData, importedData);
@@ -235,11 +219,11 @@ function updateSchedule() {
         const select = document.createElement('select');
         select.className = 'form-select';
         select.innerHTML = `
-                  <option value="available">可借用</option>
-                  <option value="blocked">不可借用</option>
-                  <option value="permanent-blocked">永久不可借用</option>
-                  ${teachers.map(t => `<option value="${t}">${t}</option>`).join('')}
-                `;
+              <option value="available">可借用</option>
+              <option value="blocked">不可借用</option>
+              <option value="permanent-blocked">永久不可借用</option>
+              ${teachers.map(t => `<option value="${t}">${t}</option>`).join('')}
+            `;
         if (cellData.permanentBlocked) {
           select.value = 'permanent-blocked';
           cell.classList.add('permanent-blocked');
@@ -249,7 +233,7 @@ function updateSchedule() {
         } else if (cellData.teacher) {
           select.value = cellData.teacher;
         }
-        select.addEventListener('change', async e => {
+        select.addEventListener('change', e => {
           const value = e.target.value;
           if (value === 'permanent-blocked') {
             for (let week = 0; week < 52; week++) {
@@ -343,5 +327,5 @@ document.getElementById('roomSelect').addEventListener('change', () => {
   updateSchedule();
 });
 initWeekSelect();
-loadScheduleFromURL();</script>
+updateSchedule();</script>
 </body></html>
