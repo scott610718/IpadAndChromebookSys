@@ -1,198 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>營北國中載具借用系統</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Microsoft JhengHei', sans-serif;
             margin: 0;
             padding: 0;
-            background: #e0f7fa;
-            color: #000;
-        }
-
-        header {
-            background-color: #0288d1;
-            color: #fff;
-            padding: 15px;
+            background: #e3f2fd url('https://via.placeholder.com/150') repeat; /* 隨機幾何圖形背景 */
+            color: #1a237e;
             text-align: center;
         }
-
-        nav {
-            background-color: #01579b;
-            padding: 10px;
-            text-align: right;
-        }
-
-        nav a {
+        header {
+            background-color: #0d47a1;
+            padding: 10px 20px;
             color: white;
-            margin-left: 20px;
-            text-decoration: none;
         }
-
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        nav {
+            margin-top: 15px;
+        }
         .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
-        .week-selector {
-            margin-bottom: 20px;
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #90caf9;
+            border-radius: 5px;
+            font-size: 1em;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-top: 20px;
         }
-
-        table, th, td {
-            border: 1px solid #0288d1;
-        }
-
-        th, td {
-            text-align: center;
-            padding: 8px;
-        }
-
-        .login {
-            text-align: center;
-            margin: 20px auto;
+        table th, table td {
+            border: 1px solid #90caf9;
             padding: 10px;
-            width: 300px;
-            border: 1px solid #0288d1;
-            border-radius: 10px;
-            background-color: #b3e5fc;
+            text-align: center;
         }
-
-        .btn {
-            padding: 8px 16px;
-            margin: 5px;
-            background-color: #0288d1;
+        button {
+            background-color: #1e88e5;
             color: white;
-            border: none;
             cursor: pointer;
-            border-radius: 4px;
         }
-
-        .btn:hover {
-            background-color: #0277bd;
+        button:hover {
+            background-color: #1565c0;
+        }
+        .login-link {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #1e88e5;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .login-link:hover {
+            background-color: #1565c0;
         }
     </style>
 </head>
 <body>
     <header>
         <h1>營北國中載具借用系統</h1>
+        <a href="login.html" class="login-link">管理者登入</a>
     </header>
-    <nav>
-        <a href="#" id="login-link">管理者登入</a>
-    </nav>
+
     <div class="container">
-        <h2>教室借用狀況</h2>
-        <div class="week-selector">
-            <label for="week">選擇週次：</label>
-            <select id="week">
-                <!-- Dynamic week options -->
+        <nav>
+            <select id="classroomSelect">
+                <option value="digital">數位教室</option>
+                <option value="social">社會教室</option>
             </select>
-        </div>
-        <div id="booking-status">
-            <h3>數位教室</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>節次</th>
-                        <th>星期一</th>
-                        <th>星期二</th>
-                        <th>星期三</th>
-                        <th>星期四</th>
-                        <th>星期五</th>
-                        <th>星期六</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Rows for 8 periods -->
-                </tbody>
-            </table>
+            <button onclick="loadWeekData()">查詢當週借用狀況</button>
+        </nav>
 
-            <h3>社會教室</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>節次</th>
-                        <th>星期一</th>
-                        <th>星期二</th>
-                        <th>星期三</th>
-                        <th>星期四</th>
-                        <th>星期五</th>
-                        <th>星期六</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Rows for 8 periods -->
-                </tbody>
-            </table>
+        <div id="scheduleContainer">
+            <!-- 借用時段表會動態載入 -->
         </div>
-    </div>
-
-    <div id="login-modal" class="login" style="display: none;">
-        <h3>管理者登入</h3>
-        <form id="login-form">
-            <div>
-                <label for="username">帳號：</label>
-                <input type="text" id="username" required>
-            </div>
-            <div>
-                <label for="password">密碼：</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit" class="btn">登入</button>
-        </form>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loginLink = document.getElementById('login-link');
-            const loginModal = document.getElementById('login-modal');
-            const loginForm = document.getElementById('login-form');
+        function loadWeekData() {
+            const classroom = document.getElementById('classroomSelect').value;
+            const currentDate = new Date();
+            const weekStart = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1));
+            let weekDataHTML = '<table><tr><th>節次\\日期</th>';
 
-            loginLink.addEventListener('click', () => {
-                loginModal.style.display = 'block';
-            });
-
-            loginForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-
-                if (username === 'scott0718' && password === 'is0718') {
-                    alert('登入成功！');
-                    loginModal.style.display = 'none';
-                    // Redirect or display admin panel logic here
-                } else {
-                    alert('帳號或密碼錯誤！');
-                }
-            });
-
-            // Initialize weeks dropdown
-            const weekSelect = document.getElementById('week');
-            for (let i = 1; i <= 52; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `第${i}週`;
-                weekSelect.appendChild(option);
+            for (let i = 0; i < 6; i++) {
+                const date = new Date(weekStart);
+                date.setDate(weekStart.getDate() + i);
+                const dateString = `${('0' + (date.getMonth() + 1)).slice(-2)}${('0' + date.getDate()).slice(-2)}`;
+                weekDataHTML += `<th>星期${i + 1} (${dateString})</th>`;
             }
 
-            weekSelect.value = new Date().getWeek(); // Default to the current week
+            weekDataHTML += '</tr>';
 
-            // Add more dynamic behaviors here...
-        });
+            for (let j = 1; j <= 8; j++) {
+                weekDataHTML += `<tr><td>第${j}節</td>`;
+                for (let k = 0; k < 6; k++) {
+                    weekDataHTML += `<td><select>
+                                        <option value="1">借用人</option>
+                                        <option value="2">不可借用</option>
+                                        <option value="3">每週不可借用</option>
+                                     </select></td>`;
+                }
+                weekDataHTML += '</tr>';
+            }
 
-        // Utility to calculate the week number of the year
-        Date.prototype.getWeek = function () {
-            const firstDayOfYear = new Date(this.getFullYear(), 0, 1);
-            const pastDaysOfYear = (this - firstDayOfYear) / 86400000;
-            return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-        };
+            weekDataHTML += '</table>';
+            document.getElementById('scheduleContainer').innerHTML = weekDataHTML;
+        }
+
+        // 預設載入當週借用狀況
+        window.onload = loadWeekData;
     </script>
 </body>
 </html>
