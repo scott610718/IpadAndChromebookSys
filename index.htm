@@ -50,11 +50,15 @@
     }
 
     .not-available {
-      background-color: #ffdddd;
+      background-color: #808080 !important;
     }
 
     .permanent-blocked {
-      background-color: #dddddd;
+      background-color: #404040 !important;
+    }
+
+    .reserved {
+      background-color: #ffeb3b !important;
     }
 
     .admin-controls {
@@ -88,6 +92,7 @@
         <select id="roomSelect" class="form-select">
           <option value="ipad">iPad&#x6559;&#x5ba4;</option>
           <option value="chromebook">Chromebook&#x6559;&#x5ba4;</option>
+          <option value="chromebook-backup">&#x5099;&#x7528;Chromebook&#x6559;&#x5ba4;</option>
         </select>
       </div>
       <div class="col">
@@ -156,7 +161,7 @@ function getCurrentWeek() {
   return Math.ceil(diffDays / 7);
 }
 let currentWeek = getCurrentWeek();
-const teachers = ['李靜汝', '田慧晶', '江佳容', '林怡彣', '李立德', '李雯琪', '張心怡', '洪錦男', '許志豪', '林明輝', '林淑楨', '林秀貞', '黃綉媛', '王耀賢', '莊雅如', '陳怡妏', '林明輝', '陳育德', '蕭慧純', '李蕎至', '蔡呈熙', '林明輝', '李宜芳', '鄧伊芳', '曾柏蓉', '魏俊益', '崔愉雯', '徐錫穎', '張茱貽', '張智鈞', '洪振民', '林佳蓉', '張瀞云', '陳立崗', '徐嘉禧', '楊海萍', '鍾菁菁', '吳政翰', '許淑智', '曾怡儒', '蘇琮筆', '教務處', '學務處', '輔導室'];
+const teachers = ['王淑鈴', '張峻榕', '賴東賢', '廖淑惠', '陳富郎', '許惠茹', '王玫玲', '黃怡仁', '林雅芳', '張家榮', '黃湘芸', '詹益郎', '鄭曉萍', '吳孟璇', '王靜慧', '郭筱萱', '許宸瑋', '李佳玲', '邱凱莉', '陳姿蓉', '黃詩婷', '林書瑾', '陳怡潔', '許凱甯', '李政憲', '邱暐智', '柳政郁', '謝岱霖', '陳雅惠', '曾韻如', '游蕓蓁', '劉泳其'];
 const weekDates = ["0101~0107", "0108~0114", "0115~0121", "0122~0128", "0129~0204", "0205~0211", "0212~0218", "0219~0225", "0226~0303", "0304~0310", "0311~0317", "0318~0324", "0325~0331", "0401~0407", "0408~0414", "0415~0421", "0422~0428", "0429~0505", "0506~0512", "0513~0519", "0520~0526", "0527~0602", "0603~0609", "0610~0616", "0617~0623", "0624~0630", "0701~0707", "0708~0714", "0715~0721", "0722~0728", "0729~0804", "0805~0811", "0812~0818", "0819~0825", "0826~0901", "0902~0908", "0909~0915", "0916~0922", "0923~0929", "0930~1006", "1007~1013", "1014~1020", "1021~1027", "1028~1103", "1104~1110", "1111~1117", "1118~1124", "1125~1201", "1202~1208", "1209~1215", "1216~1222", "1223~1229", "1230~1231"];
 const scheduleData = {
   ipad: Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
@@ -165,6 +170,11 @@ const scheduleData = {
     permanentBlocked: false
   })))),
   chromebook: Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
+    teacher: '',
+    status: 'available',
+    permanentBlocked: false
+  })))),
+  'chromebook-backup': Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
     teacher: '',
     status: 'available',
     permanentBlocked: false
@@ -233,6 +243,9 @@ function updateSchedule() {
           cell.classList.add('not-available');
         } else if (cellData.teacher) {
           select.value = cellData.teacher;
+          cell.classList.add('reserved');
+        } else {
+          cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
         }
         select.addEventListener('change', e => {
           const value = e.target.value;
@@ -243,24 +256,26 @@ function updateSchedule() {
               scheduleData[room][week][period - 1][day].teacher = '';
             }
             cell.classList.add('permanent-blocked');
+            cell.classList.remove('not-available', 'reserved');
             saveScheduleData();
           } else if (value === 'blocked') {
             cellData.status = 'blocked';
             cellData.teacher = '';
             cellData.permanentBlocked = false;
             cell.classList.add('not-available');
-            cell.classList.remove('permanent-blocked');
+            cell.classList.remove('permanent-blocked', 'reserved');
             saveScheduleData();
           } else if (value === 'available') {
             cellData.status = 'available';
             cellData.teacher = '';
             cellData.permanentBlocked = false;
-            cell.classList.remove('not-available', 'permanent-blocked');
+            cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
             saveScheduleData();
           } else {
             cellData.status = 'reserved';
             cellData.teacher = value;
             cellData.permanentBlocked = false;
+            cell.classList.add('reserved');
             cell.classList.remove('not-available', 'permanent-blocked');
             saveScheduleData();
           }
@@ -275,8 +290,10 @@ function updateSchedule() {
           cell.classList.add('not-available');
         } else if (cellData.teacher) {
           cell.textContent = `借用人: ${cellData.teacher}`;
+          cell.classList.add('reserved');
         } else {
           cell.textContent = '可借用';
+          cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
         }
       }
       row.appendChild(cell);
