@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>營北國中載具借用系統</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- 保留原有的 CSS 樣式 -->
+  <style>
+    /* 原有的 CSS 樣式保持不變 */
+    :root {
+      --primary-color: #0d6efd;
+      --secondary-color: #e9ecef;
+    }
+    
+    body {
+      font-family: '微軟正黑體', sans-serif;
+      background-color: var(--secondary-color);
+    }
+    
+    .navbar {
+      background-color: var(--primary-color) !important;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+    }
+    
+    .table th {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .schedule-cell {
+      min-width: 150px;
+    }
+
+    .not-available {
+      background-color: #dbd5d5 !important;
+    }
+
+    .permanent-blocked {
+      background-color: #c9b3b3 !important;
+    }
+
+    .reserved {
+      background-color: #f2ecb6 !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- HTML 結構保持不變 -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">營北國中載具借用系統</a>
+      <div>
+        <button id="loginBtn" class="btn btn-light">管理者登入</button>
+        <span id="syncStatus" class="text-light ms-2"></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 其餘 HTML 內容保持不變 -->
+
+  <script>
+    // GitHub 設定
+    const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN'; // 請替換成你的 GitHub Token
+    const REPO_OWNER = 'YOUR_GITHUB_USERNAME'; // 請替換成你的 GitHub 用戶名
+    const REPO_NAME = 'YOUR_REPO_NAME'; // 請替換成你的 repository 名稱
+    const FILE_PATH = 'data/scheduleData.json'; // JSON 檔案在 repo 中的路徑
+
+    // 基本設定
+    const ADMIN_USERNAME = "114";
+    const ADMIN_PASSWORD = "114";
+    let isAdmin = false;
+    let currentWeek = getCurrentWeek();
+
+    // 取得 GitHub 上的資料
+    async function fetchDataFromGitHub() {
+      try {
+        document.getElementById('syncStatus').textContent = '同步中...';
+        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`
+          }
+        });
+        
+        if (response.status === 404) {
+          // 如果檔案不存在，建立初始資料
+          await saveScheduleData(initializeScheduleData());
+          return initializeScheduleData();
+        }
+
+        const data = await response.json();
+        const content = atob(data.content);
+        document.getElementById('syncStatus').textContent = '同步完成';
+        return JSON.parse(content);
+      } catch (error) {
+        console.error('讀取資料失敗:', error);
+        document.getElementById('syncStatus').textContent = '同步失敗';
+        return initializeScheduleData();
+      }
+    }
+
+    // 儲存資料到 GitHub
+    async function saveToGitHub(data) {
+      try {
+        document.getElementById('syncStatus').textContent = '儲存中...';
+        
+        // 先取得目前的檔案 SHA
+        let sha = '';
+        try {
+          const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+            headers: {
+              'Authorization': `token ${GITHUB_TOKEN}`
+            }
+          });
+          if (response.ok) {
+            const fileInfo = await response.json();
+            sha = fileInfo.sha;
+          }
+        } catch (e) {
+          console.log('檔案不存在，將建立新檔案');
+        }
+
+        // 準備更新或建立檔案
+        const content = btoa(JSON.stringify(data, null, 2));
+        const body = {
+          message: '更新排程資料',
+          content,
+          sha: sha || undefined
+        };
+
+        const updateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (updateResponse.ok) {
+          document.getElementById('syncStatus').textContent = '儲存成功';
+        } else {
+          throw new Error('儲存失敗');
+        }
+      } catch (error) {
+        console.error('儲存資料失敗:', error);
+        document.getElementById('syncStatus').textContent = '儲存失敗';
+      }
+    }
+
+    // 初始化資料結構
+    function initializeScheduleData() {
+      return {
+        ipad: Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
+          teacher: '',
+          status: 'available',
+          permanentBlocked: false
+        })))),
+        chromebook: Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
+          teacher: '',
+          status: 'available',
+          permanentBlocked: false
+        })))),
+        'chromebook-backup': Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
+          teacher: '',
+          status: 'available',
+          permanentBlocked: false
+        }))))
+      };
+    }
+
+    // 週次相關函數
+    function getCurrentWeek() {
+      const today = new Date();
+      const startYear = new Date(today.getFullYear(), 0, 1);
+      const diffTime = Math.abs(today - startYear);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.ceil(diffDays / 7);
+    }
+
+    // UI 更新函數
+    function updateSchedule() {
+      // 原有的 updateSchedule 函數內容
+      // 在資料變更時加入呼叫 saveToGitHub
+    }
+
+    // 初始化
+    async function initialize() {
+      const data = await fetchDataFromGitHub();
+      if (data) {
+        scheduleData = data;
+        updateSchedule();
+      }
+      
+      // 設定自動同步
+      setInterval(async () => {
+        const newData = await fetchDataFromGitHub();
+        if (newData && JSON.stringify(newData) !== JSON.stringify(scheduleData)) {
+          scheduleData = newData;
+          updateSchedule();
+        }
+      }, 30000); // 每30秒同步一次
+    }
+
+    // 啟動系統
+    document.addEventListener('DOMContentLoaded', initialize);
+
+    // 其他事件監聽器
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+      loginModal.show();
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        isAdmin = true;
+        document.querySelector('.admin-controls').style.display = 'block';
+        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+        updateSchedule();
+      } else {
+        alert('帳號或密碼錯誤！');
+      }
+    });
+  </script>
+</body>
+</html>
