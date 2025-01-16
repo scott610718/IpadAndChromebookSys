@@ -1,43 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head><base href=".">
+<html><head><base href=".">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>營北國中載具借用系統</title>
+  <title>&#x71df;&#x5317;&#x570b;&#x4e2d;&#x8f09;&#x5177;&#x501f;&#x7528;&#x7cfb;&#x7d71;</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     :root {
       --primary-color: #0d6efd;
       --secondary-color: #e9ecef;
     }
-
+    
     body {
       font-family: '微軟正黑體', sans-serif;
       background-color: var(--secondary-color);
     }
-
+    
     .navbar {
       background-color: var(--primary-color) !important;
     }
-
+    
     .container {
       max-width: 1200px;
       margin: 20px auto;
     }
-
+    
     .table th {
       background-color: var(--primary-color);
       color: white;
     }
-
+    
     .table td {
       vertical-align: middle;
     }
-
+    
     .btn-primary {
       background-color: var(--primary-color);
     }
-
+    
     .login-form {
       max-width: 400px;
       margin: 0 auto;
@@ -75,26 +73,26 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">營北國中載具借用系統</a>
+      <a class="navbar-brand" href="#">&#x71df;&#x5317;&#x570b;&#x4e2d;&#x8f09;&#x5177;&#x501f;&#x7528;&#x7cfb;&#x7d71;</a>
       <div>
-        <button id="loginBtn" class="btn btn-light">管理者登入</button>
+        <button id="loginBtn" class="btn btn-light">&#x7ba1;&#x7406;&#x8005;&#x767b;&#x5165;</button>
       </div>
     </div>
   </nav>
 
   <div class="container">
     <div class="admin-controls" style="display: none;">
-      <button id="exportBtn" class="btn btn-secondary">輸出檔案</button>
-      <button id="importBtn" class="btn btn-secondary">匯入檔案</button>
+      <button id="exportBtn" class="btn btn-secondary">&#x8f38;&#x51fa;&#x6a94;&#x6848;</button>
+      <button id="importBtn" class="btn btn-secondary">&#x532f;&#x5165;&#x6a94;&#x6848;</button>
       <input type="file" id="fileInput" accept=".json">
     </div>
 
     <div class="row mb-3">
       <div class="col">
         <select id="roomSelect" class="form-select">
-          <option value="ipad">iPad教室</option>
-          <option value="chromebook">Chromebook教室</option>
-          <option value="chromebook-backup">備用Chromebook教室</option>
+          <option value="ipad">iPad&#x6559;&#x5ba4;</option>
+          <option value="chromebook">Chromebook&#x6559;&#x5ba4;</option>
+          <option value="chromebook-backup">&#x5099;&#x7528;Chromebook&#x6559;&#x5ba4;</option>
         </select>
       </div>
       <div class="col">
@@ -102,8 +100,8 @@
         </select>
       </div>
       <div class="col">
-        <button id="prevWeek" class="btn btn-primary">上一週</button>
-        <button id="nextWeek" class="btn btn-primary">下一週</button>
+        <button id="prevWeek" class="btn btn-primary">&#x4e0a;&#x4e00;&#x9031;</button>
+        <button id="nextWeek" class="btn btn-primary">&#x4e0b;&#x4e00;&#x9031;</button>
       </div>
     </div>
 
@@ -111,13 +109,13 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>節次</th>
-            <th>週一</th>
-            <th>週二</th>
-            <th>週三</th>
-            <th>週四</th>
-            <th>週五</th>
-            <th>週六</th>
+            <th>&#x7bc0;&#x6b21;</th>
+            <th>&#x9031;&#x4e00;</th>
+            <th>&#x9031;&#x4e8c;</th>
+            <th>&#x9031;&#x4e09;</th>
+            <th>&#x9031;&#x56db;</th>
+            <th>&#x9031;&#x4e94;</th>
+            <th>&#x9031;&#x516d;</th>
           </tr>
         </thead>
         <tbody id="scheduleBody">
@@ -131,20 +129,20 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">管理者登入</h5>
+          <h5 class="modal-title">&#x7ba1;&#x7406;&#x8005;&#x767b;&#x5165;</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="loginForm">
             <div class="mb-3">
-              <label class="form-label">帳號</label>
+              <label class="form-label">&#x5e33;&#x865f;</label>
               <input type="text" class="form-control" id="username" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">密碼</label>
+              <label class="form-label">&#x5bc6;&#x78bc;</label>
               <input type="password" class="form-control" id="password" required>
             </div>
-            <button type="submit" class="btn btn-primary">登入</button>
+            <button type="submit" class="btn btn-primary">&#x767b;&#x5165;</button>
           </form>
         </div>
       </div>
@@ -152,13 +150,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-const GITHUB_USERNAME = "scott610718"; // Replace with your GitHub username
-const GITHUB_REPO = "IpadAndChromebookSys"; // Replace with your GitHub repository name
-const GITHUB_TOKEN = "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"; // Replace with your GitHub personal access token
-const GITHUB_FILE_PATH = "schedule_data.json";
-
-const ADMIN_USERNAME = "114";
+  <script>const ADMIN_USERNAME = "114";
 const ADMIN_PASSWORD = "114";
 let isAdmin = false;
 function getCurrentWeek() {
@@ -171,7 +163,7 @@ function getCurrentWeek() {
 let currentWeek = getCurrentWeek();
 const teachers = ['李靜汝', '田慧晶', '江佳容', '林怡彣', '李立德', '李雯琪', '張心怡', '洪錦男', '許志豪', '林明輝', '林淑楨', '林秀貞', '黃綉媛', '王耀賢', '莊雅如', '陳怡妏', '陳育德', '蕭慧純', '李蕎至', '蔡呈熙', '李宜芳', '鄧伊芳', '曾柏蓉', '魏俊益', '崔愉雯', '徐錫穎', '張茱貽', '張智鈞', '洪振民', '林佳蓉', '張瀞云', '陳立崗', '徐嘉禧', '楊海萍', '鍾菁菁', '吳政翰', '許淑智', '曾怡儒', '蘇琮筆'];
 const weekDates = ["0101~0107", "0108~0114", "0115~0121", "0122~0128", "0129~0204", "0205~0211", "0212~0218", "0219~0225", "0226~0303", "0304~0310", "0311~0317", "0318~0324", "0325~0331", "0401~0407", "0408~0414", "0415~0421", "0422~0428", "0429~0505", "0506~0512", "0513~0519", "0520~0526", "0527~0602", "0603~0609", "0610~0616", "0617~0623", "0624~0630", "0701~0707", "0708~0714", "0715~0721", "0722~0728", "0729~0804", "0805~0811", "0812~0818", "0819~0825", "0826~0901", "0902~0908", "0909~0915", "0916~0922", "0923~0929", "0930~1006", "1007~1013", "1014~1020", "1021~1027", "1028~1103", "1104~1110", "1111~1117", "1118~1124", "1125~1201", "1202~1208", "1209~1215", "1216~1222", "1223~1229", "1230~1231"];
-let scheduleData = {
+const scheduleData = {
   ipad: Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
     teacher: '',
     status: 'available',
@@ -188,95 +180,6 @@ let scheduleData = {
     permanentBlocked: false
   }))))
 };
-
-async function fetchScheduleData() {
-    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
-    const headers = {
-        'Authorization': `Bearer ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github.v3.raw'
-    };
-
-    try {
-        const response = await fetch(url, { headers });
-        if (!response.ok) {
-            if (response.status === 404) {
-               alert(`檔案不存在，請確認GitHub設定，檔案路徑是否正確: ${GITHUB_FILE_PATH}`);
-                console.log('檔案不存在，使用預設資料');
-                return;
-            }
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-
-        if (data) {
-            try {
-                Object.assign(scheduleData, JSON.parse(data));
-            } catch (error) {
-                console.error('Error parsing JSON data:', error);
-                alert('無法解析資料，請檢查 GitHub 檔案是否為正確的 JSON 格式');
-                return;
-            }
-        } else {
-          console.error('No data received from GitHub API');
-          alert('無法取得資料，請檢查GitHub 設定');
-            return;
-        }
-
-    } catch (error) {
-        console.error('Error fetching schedule data:', error);
-       alert(`無法取得資料，請檢查網路設定或GitHub API設定，錯誤訊息: ${error.message}`);
-      return;
-    }
-}
-async function saveScheduleData() {
-    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
-    const content = JSON.stringify(scheduleData, null, 2); // Use null, 2 for pretty print
-    const headers = {
-        'Authorization': `Bearer ${GITHUB_TOKEN}`,
-        'Content-Type': 'application/json'
-    };
-    let sha = null;
-    try {
-        const response = await fetch(url, { headers });
-        if (response.ok) {
-            const data = await response.json();
-            sha = data.sha;
-        } else if (response.status !== 404) {
-           throw new Error(`HTTP error! status: ${response.status}`);
-        }
-    } catch(error) {
-        console.error("Error checking file:", error)
-        alert(`儲存失敗，檢查檔案時發生錯誤，錯誤訊息: ${error.message}`);
-        return;
-    }
-
-
-    const body = JSON.stringify({
-        message: "Update schedule data",
-        content: btoa(content),
-        sha: sha
-    });
-    const method = sha ? 'PUT' : 'POST'; // Use PUT to update, POST to create
-    try {
-        const response = await fetch(url, {
-            method: method,
-            headers: headers,
-            body: body
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-         alert('資料儲存成功!');
-
-    } catch (error) {
-        console.error("Error saving data to github:", error);
-        alert(`儲存失敗，請檢查網路設定或GitHub API設定，錯誤訊息: ${error.message}`);
-        return;
-    }
-}
-
 function exportSchedule() {
   const dataStr = JSON.stringify(scheduleData);
   const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
@@ -292,9 +195,9 @@ function importSchedule(file) {
     try {
       const importedData = JSON.parse(e.target.result);
       Object.assign(scheduleData, importedData);
-       saveScheduleData();
-       updateSchedule();
-       alert('資料匯入成功！');
+      saveScheduleData();
+      updateSchedule();
+      alert('資料匯入成功！');
     } catch (error) {
       alert('檔案格式錯誤！');
     }
@@ -344,7 +247,7 @@ function updateSchedule() {
         } else {
           cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
         }
-        select.addEventListener('change', async e => {
+        select.addEventListener('change', e => {
           const value = e.target.value;
           if (value === 'permanent-blocked') {
             for (let week = 0; week < 52; week++) {
@@ -354,27 +257,27 @@ function updateSchedule() {
             }
             cell.classList.add('permanent-blocked');
             cell.classList.remove('not-available', 'reserved');
-           await saveScheduleData();
+            saveScheduleData();
           } else if (value === 'blocked') {
             cellData.status = 'blocked';
             cellData.teacher = '';
             cellData.permanentBlocked = false;
             cell.classList.add('not-available');
             cell.classList.remove('permanent-blocked', 'reserved');
-            await saveScheduleData();
+            saveScheduleData();
           } else if (value === 'available') {
             cellData.status = 'available';
             cellData.teacher = '';
             cellData.permanentBlocked = false;
             cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
-           await saveScheduleData();
+            saveScheduleData();
           } else {
             cellData.status = 'reserved';
             cellData.teacher = value;
             cellData.permanentBlocked = false;
             cell.classList.add('reserved');
             cell.classList.remove('not-available', 'permanent-blocked');
-             await saveScheduleData();
+            saveScheduleData();
           }
         });
         cell.appendChild(select);
@@ -398,7 +301,15 @@ function updateSchedule() {
     scheduleBody.appendChild(row);
   }
 }
-
+function saveScheduleData() {
+  localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+}
+function loadScheduleData() {
+  const saved = localStorage.getItem('scheduleData');
+  if (saved) {
+    Object.assign(scheduleData, JSON.parse(saved));
+  }
+}
 document.getElementById('loginBtn').addEventListener('click', () => {
   const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
   loginModal.show();
@@ -446,13 +357,7 @@ document.getElementById('nextWeek').addEventListener('click', () => {
 document.getElementById('roomSelect').addEventListener('change', () => {
   updateSchedule();
 });
-async function initializeApp() {
-  await fetchScheduleData();
-  initWeekSelect();
-  updateSchedule();
-}
-initializeApp();
-
-</script>
-</body>
-</html>
+loadScheduleData();
+initWeekSelect();
+updateSchedule();</script>
+</body></html>
