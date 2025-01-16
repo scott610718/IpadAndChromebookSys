@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><base href=".">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>營北國中載具借用系統</title>
@@ -10,26 +10,43 @@
       --primary-color: #0d6efd;
       --secondary-color: #e9ecef;
     }
-    
+
     body {
       font-family: '微軟正黑體', sans-serif;
       background-color: var(--secondary-color);
     }
-    
+
     .navbar {
       background-color: var(--primary-color) !important;
     }
-    
+
     .container {
       max-width: 1200px;
       margin: 20px auto;
     }
-    
+
     .table th {
       background-color: var(--primary-color);
       color: white;
     }
-    
+
+    .table td {
+      vertical-align: middle;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+    }
+
+    .login-form {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
     .schedule-cell {
       min-width: 150px;
     }
@@ -45,6 +62,14 @@
     .reserved {
       background-color: #f2ecb6 !important;
     }
+
+    .admin-controls {
+      margin-bottom: 15px;
+    }
+
+    #fileInput {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -58,6 +83,12 @@
   </nav>
 
   <div class="container">
+    <div class="admin-controls" style="display: none;">
+      <button id="exportBtn" class="btn btn-secondary">輸出檔案</button>
+      <button id="importBtn" class="btn btn-secondary">匯入檔案</button>
+      <input type="file" id="fileInput" accept=".json">
+    </div>
+
     <div class="row mb-3">
       <div class="col">
         <select id="roomSelect" class="form-select">
@@ -86,6 +117,7 @@
             <th>週三</th>
             <th>週四</th>
             <th>週五</th>
+            <th>週六</th>
           </tr>
         </thead>
         <tbody id="scheduleBody">
@@ -121,190 +153,305 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // 基本設定
-    const ADMIN_USERNAME = "114";
-    const ADMIN_PASSWORD = "114";
-    let isAdmin = false;
-    let currentWeek = 1;
+const GITHUB_USERNAME = "YOUR_GITHUB_USERNAME"; // Replace with your GitHub username
+const GITHUB_REPO = "YOUR_GITHUB_REPO"; // Replace with your GitHub repository name
+const GITHUB_TOKEN = "YOUR_GITHUB_TOKEN"; // Replace with your GitHub personal access token
+const GITHUB_FILE_PATH = "schedule_data.json";
 
-    // 教師名單
-    const teachers = ['李靜汝', '田慧晶', '江佳容', '林怡彣'];
+const ADMIN_USERNAME = "114";
+const ADMIN_PASSWORD = "114";
+let isAdmin = false;
+function getCurrentWeek() {
+  const today = new Date(2024, 0, 11);
+  const startYear = new Date(2024, 0, 1);
+  const diffTime = Math.abs(today - startYear);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return Math.ceil(diffDays / 7);
+}
+let currentWeek = getCurrentWeek();
+const teachers = ['李靜汝', '田慧晶', '江佳容', '林怡彣', '李立德', '李雯琪', '張心怡', '洪錦男', '許志豪', '林明輝', '林淑楨', '林秀貞', '黃綉媛', '王耀賢', '莊雅如', '陳怡妏', '陳育德', '蕭慧純', '李蕎至', '蔡呈熙', '李宜芳', '鄧伊芳', '曾柏蓉', '魏俊益', '崔愉雯', '徐錫穎', '張茱貽', '張智鈞', '洪振民', '林佳蓉', '張瀞云', '陳立崗', '徐嘉禧', '楊海萍', '鍾菁菁', '吳政翰', '許淑智', '曾怡儒', '蘇琮筆'];
+const weekDates = ["0101~0107", "0108~0114", "0115~0121", "0122~0128", "0129~0204", "0205~0211", "0212~0218", "0219~0225", "0226~0303", "0304~0310", "0311~0317", "0318~0324", "0325~0331", "0401~0407", "0408~0414", "0415~0421", "0422~0428", "0429~0505", "0506~0512", "0513~0519", "0520~0526", "0527~0602", "0603~0609", "0610~0616", "0617~0623", "0624~0630", "0701~0707", "0708~0714", "0715~0721", "0722~0728", "0729~0804", "0805~0811", "0812~0818", "0819~0825", "0826~0901", "0902~0908", "0909~0915", "0916~0922", "0923~0929", "0930~1006", "1007~1013", "1014~1020", "1021~1027", "1028~1103", "1104~1110", "1111~1117", "1118~1124", "1125~1201", "1202~1208", "1209~1215", "1216~1222", "1223~1229", "1230~1231"];
+let scheduleData = {
+  ipad: Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
+    teacher: '',
+    status: 'available',
+    permanentBlocked: false
+  })))),
+  chromebook: Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
+    teacher: '',
+    status: 'available',
+    permanentBlocked: false
+  })))),
+  'chromebook-backup': Array(52).fill().map(() => Array(8).fill().map(() => Array(6).fill().map(() => ({
+    teacher: '',
+    status: 'available',
+    permanentBlocked: false
+  }))))
+};
 
-    // 初始化資料
-    let scheduleData = {
-      ipad: Array(52).fill().map(() => Array(8).fill().map(() => Array(5).fill().map(() => ({
-        teacher: '',
-        status: 'available',
-        permanentBlocked: false
-      })))),
-      chromebook: Array(52).fill().map(() => Array(8).fill().map(() => Array(5).fill().map(() => ({
-        teacher: '',
-        status: 'available',
-        permanentBlocked: false
-      })))),
-      'chromebook-backup': Array(52).fill().map(() => Array(8).fill().map(() => Array(5).fill().map(() => ({
-        teacher: '',
-        status: 'available',
-        permanentBlocked: false
-      }))))
-    };
+async function fetchScheduleData() {
+  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+  const headers = {
+      'Authorization': `Bearer ${GITHUB_TOKEN}`,
+      'Accept': 'application/vnd.github.v3.raw'
+  };
 
-    // 初始化週次選單
-    function initWeekSelect() {
-      const weekSelect = document.getElementById('weekSelect');
-      weekSelect.innerHTML = '';
-      for (let i = 1; i <= 52; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = `第${i}週`;
-        weekSelect.appendChild(option);
+  try {
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log('檔案不存在，使用預設資料');
+        return;
       }
-      weekSelect.value = currentWeek;
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+
+    if (data) {
+        try {
+          Object.assign(scheduleData, JSON.parse(data));
+        } catch (error) {
+          console.error('Error parsing JSON data:', error);
+          alert('無法解析資料，請檢查 GitHub 檔案是否為正確的 JSON 格式');
+          return;
+      }
+    } else {
+      console.error('No data received from GitHub API');
+        alert('無法取得資料，請檢查GitHub 設定');
+        return;
     }
 
-    // 更新畫面
-    function updateSchedule() {
-      const scheduleBody = document.getElementById('scheduleBody');
-      const room = document.getElementById('roomSelect').value;
-      scheduleBody.innerHTML = '';
+    } catch (error) {
+        console.error('Error fetching schedule data:', error);
+      alert('無法取得資料，請檢查網路設定或GitHub API設定');
+      return;
+    }
+}
+async function saveScheduleData() {
+    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+    const content = JSON.stringify(scheduleData, null, 2); // Use null, 2 for pretty print
+    const headers = {
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Content-Type': 'application/json'
+    };
+    let sha = null;
+    try {
+        const response = await fetch(url, { headers });
+        if (response.ok) {
+            const data = await response.json();
+            sha = data.sha;
+        } else if (response.status !== 404) {
+           throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch(error) {
+        console.error("Error checking file:", error)
+        alert('儲存失敗，請檢查網路設定或GitHub API設定');
+        return;
+    }
 
-      for (let period = 1; period <= 8; period++) {
-        const row = document.createElement('tr');
-        row.innerHTML = `<th>${period}</th>`;
-        
-        for (let day = 0; day < 5; day++) {
-          const cell = document.createElement('td');
-          cell.className = 'schedule-cell';
-          const cellData = scheduleData[room][currentWeek - 1][period - 1][day];
 
-          if (isAdmin) {
-            const select = document.createElement('select');
-            select.className = 'form-select';
-            select.innerHTML = `
+    const body = JSON.stringify({
+        message: "Update schedule data",
+        content: btoa(content),
+        sha: sha
+    });
+    const method = sha ? 'PUT' : 'POST'; // Use PUT to update, POST to create
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: headers,
+            body: body
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+         alert('資料儲存成功!');
+
+    } catch (error) {
+        console.error("Error saving data to github:", error);
+        alert('儲存失敗，請檢查網路設定或GitHub API設定');
+        return;
+    }
+}
+
+function exportSchedule() {
+  const dataStr = JSON.stringify(scheduleData);
+  const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+  const exportFileDefaultName = 'schedule_data.json';
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.click();
+}
+function importSchedule(file) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const importedData = JSON.parse(e.target.result);
+      Object.assign(scheduleData, importedData);
+       saveScheduleData();
+       updateSchedule();
+       alert('資料匯入成功！');
+    } catch (error) {
+      alert('檔案格式錯誤！');
+    }
+  };
+  reader.readAsText(file);
+}
+function initWeekSelect() {
+  const weekSelect = document.getElementById('weekSelect');
+  weekSelect.innerHTML = '';
+  for (let i = 1; i <= 52; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = `第${i}週 (${weekDates[i - 1]})`;
+    weekSelect.appendChild(option);
+  }
+  weekSelect.value = currentWeek;
+}
+function updateSchedule() {
+  const scheduleBody = document.getElementById('scheduleBody');
+  const room = document.getElementById('roomSelect').value;
+  scheduleBody.innerHTML = '';
+  for (let period = 1; period <= 8; period++) {
+    const row = document.createElement('tr');
+    row.innerHTML = `<th>${period}</th>`;
+    for (let day = 0; day < 6; day++) {
+      const cell = document.createElement('td');
+      cell.className = 'schedule-cell';
+      const cellData = scheduleData[room][currentWeek - 1][period - 1][day];
+      if (isAdmin) {
+        const select = document.createElement('select');
+        select.className = 'form-select';
+        select.innerHTML = `
               <option value="available">可借用</option>
               <option value="blocked">不可借用</option>
               <option value="permanent-blocked">永久不可借用</option>
               ${teachers.map(t => `<option value="${t}">${t}</option>`).join('')}
             `;
-
-            if (cellData.permanentBlocked) {
-              select.value = 'permanent-blocked';
-              cell.classList.add('permanent-blocked');
-            } else if (cellData.status === 'blocked') {
-              select.value = 'blocked';
-              cell.classList.add('not-available');
-            } else if (cellData.teacher) {
-              select.value = cellData.teacher;
-              cell.classList.add('reserved');
-            }
-
-            select.addEventListener('change', e => {
-              const value = e.target.value;
-              if (value === 'permanent-blocked') {
-                for (let week = 0; week < 52; week++) {
-                  scheduleData[room][week][period - 1][day].permanentBlocked = true;
-                  scheduleData[room][week][period - 1][day].status = 'blocked';
-                  scheduleData[room][week][period - 1][day].teacher = '';
-                }
-                cell.classList.add('permanent-blocked');
-                cell.classList.remove('not-available', 'reserved');
-              } else if (value === 'blocked') {
-                cellData.status = 'blocked';
-                cellData.teacher = '';
-                cellData.permanentBlocked = false;
-                cell.classList.add('not-available');
-                cell.classList.remove('permanent-blocked', 'reserved');
-              } else if (value === 'available') {
-                cellData.status = 'available';
-                cellData.teacher = '';
-                cellData.permanentBlocked = false;
-                cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
-              } else {
-                cellData.status = 'reserved';
-                cellData.teacher = value;
-                cellData.permanentBlocked = false;
-                cell.classList.add('reserved');
-                cell.classList.remove('not-available', 'permanent-blocked');
-              }
-              localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
-            });
-
-            cell.appendChild(select);
-          } else {
-            if (cellData.permanentBlocked) {
-              cell.textContent = '永久不可借用';
-              cell.classList.add('permanent-blocked');
-            } else if (cellData.status === 'blocked') {
-              cell.textContent = '不可借用';
-              cell.classList.add('not-available');
-            } else if (cellData.teacher) {
-              cell.textContent = `借用人: ${cellData.teacher}`;
-              cell.classList.add('reserved');
-            } else {
-              cell.textContent = '可借用';
-            }
-          }
-          
-          row.appendChild(cell);
+        if (cellData.permanentBlocked) {
+          select.value = 'permanent-blocked';
+          cell.classList.add('permanent-blocked');
+        } else if (cellData.status === 'blocked') {
+          select.value = 'blocked';
+          cell.classList.add('not-available');
+        } else if (cellData.teacher) {
+          select.value = cellData.teacher;
+          cell.classList.add('reserved');
+        } else {
+          cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
         }
-        scheduleBody.appendChild(row);
-      }
-    }
-
-    // 事件監聽
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-      loginModal.show();
-    });
-
-    document.getElementById('loginForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-        isAdmin = true;
-        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
-        updateSchedule();
+        select.addEventListener('change', e => {
+          const value = e.target.value;
+          if (value === 'permanent-blocked') {
+            for (let week = 0; week < 52; week++) {
+              scheduleData[room][week][period - 1][day].permanentBlocked = true;
+              scheduleData[room][week][period - 1][day].status = 'blocked';
+              scheduleData[room][week][period - 1][day].teacher = '';
+            }
+            cell.classList.add('permanent-blocked');
+            cell.classList.remove('not-available', 'reserved');
+            saveScheduleData();
+          } else if (value === 'blocked') {
+            cellData.status = 'blocked';
+            cellData.teacher = '';
+            cellData.permanentBlocked = false;
+            cell.classList.add('not-available');
+            cell.classList.remove('permanent-blocked', 'reserved');
+            saveScheduleData();
+          } else if (value === 'available') {
+            cellData.status = 'available';
+            cellData.teacher = '';
+            cellData.permanentBlocked = false;
+            cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
+           saveScheduleData();
+          } else {
+            cellData.status = 'reserved';
+            cellData.teacher = value;
+            cellData.permanentBlocked = false;
+            cell.classList.add('reserved');
+            cell.classList.remove('not-available', 'permanent-blocked');
+             saveScheduleData();
+          }
+        });
+        cell.appendChild(select);
       } else {
-        alert('帳號或密碼錯誤！');
+        if (cellData.permanentBlocked) {
+          cell.textContent = '永久不可借用';
+          cell.classList.add('permanent-blocked');
+        } else if (cellData.status === 'blocked') {
+          cell.textContent = '不可借用';
+          cell.classList.add('not-available');
+        } else if (cellData.teacher) {
+          cell.textContent = `借用人: ${cellData.teacher}`;
+          cell.classList.add('reserved');
+        } else {
+          cell.textContent = '可借用';
+          cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
+        }
       }
-    });
-
-    document.getElementById('weekSelect').addEventListener('change', e => {
-      currentWeek = parseInt(e.target.value);
-      updateSchedule();
-    });
-
-    document.getElementById('prevWeek').addEventListener('click', () => {
-      if (currentWeek > 1) {
-        currentWeek--;
-        document.getElementById('weekSelect').value = currentWeek;
-        updateSchedule();
-      }
-    });
-
-    document.getElementById('nextWeek').addEventListener('click', () => {
-      if (currentWeek < 52) {
-        currentWeek++;
-        document.getElementById('weekSelect').value = currentWeek;
-        updateSchedule();
-      }
-    });
-
-    document.getElementById('roomSelect').addEventListener('change', () => {
-      updateSchedule();
-    });
-
-    // 載入儲存的資料
-    const savedData = localStorage.getItem('scheduleData');
-    if (savedData) {
-      scheduleData = JSON.parse(savedData);
+      row.appendChild(cell);
     }
+    scheduleBody.appendChild(row);
+  }
+}
 
-    // 初始化
-    initWeekSelect();
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+  loginModal.show();
+});
+document.getElementById('loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    isAdmin = true;
+    document.querySelector('.admin-controls').style.display = 'block';
+    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
     updateSchedule();
-  </script>
+  } else {
+    alert('帳號或密碼錯誤！');
+  }
+});
+document.getElementById('exportBtn').addEventListener('click', exportSchedule);
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+document.getElementById('fileInput').addEventListener('change', e => {
+  if (e.target.files.length > 0) {
+    importSchedule(e.target.files[0]);
+  }
+});
+document.getElementById('weekSelect').addEventListener('change', e => {
+  currentWeek = parseInt(e.target.value);
+  updateSchedule();
+});
+document.getElementById('prevWeek').addEventListener('click', () => {
+  if (currentWeek > 1) {
+    currentWeek--;
+    document.getElementById('weekSelect').value = currentWeek;
+    updateSchedule();
+  }
+});
+document.getElementById('nextWeek').addEventListener('click', () => {
+  if (currentWeek < 52) {
+    currentWeek++;
+    document.getElementById('weekSelect').value = currentWeek;
+    updateSchedule();
+  }
+});
+document.getElementById('roomSelect').addEventListener('change', () => {
+  updateSchedule();
+});
+async function initializeApp() {
+  await fetchScheduleData();
+  initWeekSelect();
+  updateSchedule();
+}
+initializeApp();
+
+</script>
 </body>
 </html>
