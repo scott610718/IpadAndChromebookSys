@@ -190,40 +190,41 @@ let scheduleData = {
 };
 
 async function fetchScheduleData() {
-  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
-  const headers = {
-      'Authorization': `Bearer ${GITHUB_TOKEN}`,
-      'Accept': 'application/vnd.github.v3.raw'
-  };
+    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+    const headers = {
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3.raw'
+    };
 
-  try {
-    const response = await fetch(url, { headers });
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.log('檔案不存在，使用預設資料');
-        return;
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
+    try {
+        const response = await fetch(url, { headers });
+        if (!response.ok) {
+            if (response.status === 404) {
+               alert(`檔案不存在，請確認GitHub設定，檔案路徑是否正確: ${GITHUB_FILE_PATH}`);
+                console.log('檔案不存在，使用預設資料');
+                return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
 
-    if (data) {
-        try {
-          Object.assign(scheduleData, JSON.parse(data));
-        } catch (error) {
-          console.error('Error parsing JSON data:', error);
-          alert('無法解析資料，請檢查 GitHub 檔案是否為正確的 JSON 格式');
-          return;
-      }
-    } else {
-      console.error('No data received from GitHub API');
-        alert('無法取得資料，請檢查GitHub 設定');
-        return;
-    }
+        if (data) {
+            try {
+                Object.assign(scheduleData, JSON.parse(data));
+            } catch (error) {
+                console.error('Error parsing JSON data:', error);
+                alert('無法解析資料，請檢查 GitHub 檔案是否為正確的 JSON 格式');
+                return;
+            }
+        } else {
+          console.error('No data received from GitHub API');
+          alert('無法取得資料，請檢查GitHub 設定');
+            return;
+        }
 
     } catch (error) {
         console.error('Error fetching schedule data:', error);
-      alert('無法取得資料，請檢查網路設定或GitHub API設定');
+       alert(`無法取得資料，請檢查網路設定或GitHub API設定，錯誤訊息: ${error.message}`);
       return;
     }
 }
@@ -245,7 +246,7 @@ async function saveScheduleData() {
         }
     } catch(error) {
         console.error("Error checking file:", error)
-        alert('儲存失敗，請檢查網路設定或GitHub API設定');
+        alert(`儲存失敗，檢查檔案時發生錯誤，錯誤訊息: ${error.message}`);
         return;
     }
 
@@ -271,7 +272,7 @@ async function saveScheduleData() {
 
     } catch (error) {
         console.error("Error saving data to github:", error);
-        alert('儲存失敗，請檢查網路設定或GitHub API設定');
+        alert(`儲存失敗，請檢查網路設定或GitHub API設定，錯誤訊息: ${error.message}`);
         return;
     }
 }
@@ -343,7 +344,7 @@ function updateSchedule() {
         } else {
           cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
         }
-        select.addEventListener('change', e => {
+        select.addEventListener('change', async e => {
           const value = e.target.value;
           if (value === 'permanent-blocked') {
             for (let week = 0; week < 52; week++) {
@@ -353,27 +354,27 @@ function updateSchedule() {
             }
             cell.classList.add('permanent-blocked');
             cell.classList.remove('not-available', 'reserved');
-            saveScheduleData();
+           await saveScheduleData();
           } else if (value === 'blocked') {
             cellData.status = 'blocked';
             cellData.teacher = '';
             cellData.permanentBlocked = false;
             cell.classList.add('not-available');
             cell.classList.remove('permanent-blocked', 'reserved');
-            saveScheduleData();
+            await saveScheduleData();
           } else if (value === 'available') {
             cellData.status = 'available';
             cellData.teacher = '';
             cellData.permanentBlocked = false;
             cell.classList.remove('not-available', 'permanent-blocked', 'reserved');
-           saveScheduleData();
+           await saveScheduleData();
           } else {
             cellData.status = 'reserved';
             cellData.teacher = value;
             cellData.permanentBlocked = false;
             cell.classList.add('reserved');
             cell.classList.remove('not-available', 'permanent-blocked');
-             saveScheduleData();
+             await saveScheduleData();
           }
         });
         cell.appendChild(select);
